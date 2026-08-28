@@ -1,8 +1,10 @@
+import {NavBar} from "@/components/navbar";
 const COLUMNS = 5;
 
 export default function Home() {
   return (
     <main className="relative flex flex-1 flex-col">
+      <NavBar />
       {/* Retícula alineada al margen del contenido */}
       <div
         aria-hidden
@@ -17,7 +19,7 @@ export default function Home() {
         <svg
           aria-hidden
           viewBox="0 0 20 20"
-          className="size-4 text-accent"
+          className="size-4 text-brand"
           fill="currentColor"
         >
           <rect x="0" y="0" width="9" height="9" />
@@ -33,7 +35,7 @@ export default function Home() {
       <div className="relative flex flex-1 items-end px-8 pb-12 pt-28 sm:px-12 lg:px-16">
         <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-end xl:justify-between xl:gap-20">
           {/* -ml compensa el bearing de la G para que apoye en el margen */}
-          <h1 className="-ml-[0.035em] font-sans text-[clamp(4.5rem,26vw,15rem)] font-bold leading-[0.78] tracking-[-0.05em] text-accent">
+          <h1 className="-ml-[0.035em] font-sans text-[clamp(4.5rem,26vw,15rem)] font-bold leading-[0.78] tracking-[-0.05em] text-brand">
             GRIDD
           </h1>
           <p className="max-w-xs text-sm leading-6 text-zinc-400 xl:pb-4 xl:text-right">
