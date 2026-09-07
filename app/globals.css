@@ -8,42 +8,43 @@
 :root,
 .dark {
   /* marca */
-  --brand: #d7ff00;
-  --brand-foreground: #0a0a0a;
+  --brand: #dfff00;
+  --brand-foreground: #0b0b0c;
 
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --card: #121212;
-  --card-foreground: #fafafa;
-  --popover: #121212;
-  --popover-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #0a0a0a;
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: #fafafa;
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
+  /* paleta base (GRI-4) */
+  --background: #0b0b0c;
+  --foreground: #f2f3f5;
+  --card: #17181b;
+  --card-foreground: #f2f3f5;
+  --popover: #17181b;
+  --popover-foreground: #f2f3f5;
+  --primary: #f2f3f5;
+  --primary-foreground: #0b0b0c;
+  --secondary: #22242a;
+  --secondary-foreground: #f2f3f5;
+  --muted: #22242a;
+  --muted-foreground: #8a8f98;
   /* --accent es el hover/focus de los componentes shadcn, no el fluor */
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: #fafafa;
+  --accent: #22242a;
+  --accent-foreground: #f2f3f5;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --border: #2a2c30;
+  --input: #2a2c30;
+  --ring: #4a4e57;
   --chart-1: var(--brand);
-  --chart-2: oklch(0.87 0 0);
-  --chart-3: oklch(0.708 0 0);
-  --chart-4: oklch(0.556 0 0);
-  --chart-5: oklch(0.439 0 0);
+  --chart-2: #f2f3f5;
+  --chart-3: #b9bec7;
+  --chart-4: #8a8f98;
+  --chart-5: #5b606a;
   --radius: 0.625rem;
-  --sidebar: #121212;
-  --sidebar-foreground: #fafafa;
+  --sidebar: #17181b;
+  --sidebar-foreground: #f2f3f5;
   --sidebar-primary: var(--brand);
   --sidebar-primary-foreground: var(--brand-foreground);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-accent: #22242a;
+  --sidebar-accent-foreground: #f2f3f5;
+  --sidebar-border: #2a2c30;
+  --sidebar-ring: #4a4e57;
 }
 
 @theme inline {
