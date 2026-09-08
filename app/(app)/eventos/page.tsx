@@ -5,8 +5,14 @@ import { Calendar03Icon } from "@hugeicons/core-free-icons"
 import { PageHeader } from "@/components/page-header"
 import { EmptyState } from "@/components/states/empty-state"
 import { Button } from "@/components/ui/button"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = { title: "Eventos · GRIDD" }
+export const metadata: Metadata = pageMetadata({
+  title: "Eventos",
+  description:
+    "Todos los encuentros fierreros que se vienen, ordenados por fecha: junadas, rodadas, expos y fechas de pista.",
+  path: "/eventos",
+})
 
 // Placeholder: el listado real llega en GRI-18 (Vista lista de eventos).
 export default function EventosPage() {

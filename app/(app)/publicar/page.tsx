@@ -5,8 +5,15 @@ import { PicadasNotice } from "@/components/legal/picadas-notice"
 import { TermsAcceptance } from "@/components/legal/terms-acceptance"
 import { PageHeader } from "@/components/page-header"
 import { EmptyState } from "@/components/states/empty-state"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = { title: "Publicar · GRIDD" }
+export const metadata: Metadata = pageMetadata({
+  title: "Publicar",
+  description:
+    "Publicá tu evento en Gridd: fecha, lugar y poco más. Nada de picadas ni carreras en la vía pública.",
+  path: "/publicar",
+  ogTitle: "Publicar un evento · GRIDD",
+})
 
 // Placeholder: el formulario de alta llega en GRI-13. El aviso de picadas y la
 // aceptación de términos ya viven acá (GRI-25) para que el form los herede.

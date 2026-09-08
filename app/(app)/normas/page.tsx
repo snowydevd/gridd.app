@@ -4,13 +4,15 @@ import Link from "next/link"
 import { LegalShell } from "@/components/legal/legal-shell"
 import { PicadasNotice } from "@/components/legal/picadas-notice"
 import { Prose } from "@/components/legal/prose"
+import { pageMetadata } from "@/lib/seo"
 import { site } from "@/lib/site"
 
-export const metadata: Metadata = {
-  title: "Normas de la comunidad · GRIDD",
+export const metadata: Metadata = pageMetadata({
+  title: "Normas de la comunidad",
   description:
     "Gridd no admite picadas ni carreras en la vía pública. Qué sí se puede publicar, qué no, y qué pasa si alguien insiste.",
-}
+  path: "/normas",
+})
 
 export default function NormasPage() {
   return (

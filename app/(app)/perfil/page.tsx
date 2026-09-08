@@ -3,8 +3,15 @@ import { User03Icon } from "@hugeicons/core-free-icons"
 
 import { PageHeader } from "@/components/page-header"
 import { EmptyState } from "@/components/states/empty-state"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = { title: "Perfil · GRIDD" }
+// Página de cuenta: no hay nada que indexar.
+export const metadata: Metadata = pageMetadata({
+  title: "Perfil",
+  description: "Tus eventos publicados y los datos de tu cuenta.",
+  path: "/perfil",
+  index: false,
+})
 
 // Placeholder: perfil y auth llegan en GRI-11 y GRI-12.
 export default function PerfilPage() {

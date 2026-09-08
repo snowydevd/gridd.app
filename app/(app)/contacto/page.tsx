@@ -11,13 +11,15 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { LegalShell } from "@/components/legal/legal-shell"
 import { Prose } from "@/components/legal/prose"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { pageMetadata } from "@/lib/seo"
 import { site } from "@/lib/site"
 
-export const metadata: Metadata = {
-  title: "Contacto y bajas · GRIDD",
+export const metadata: Metadata = pageMetadata({
+  title: "Contacto y bajas",
   description:
     "Cómo pedir la baja de una cuenta o de un evento, reclamar por una decisión de moderación o reportar algo urgente.",
-}
+  path: "/contacto",
+})
 
 type HugeIcon = React.ComponentProps<typeof HugeiconsIcon>["icon"]
 

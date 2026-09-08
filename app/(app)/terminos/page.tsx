@@ -3,13 +3,15 @@ import Link from "next/link"
 
 import { LegalShell } from "@/components/legal/legal-shell"
 import { Prose } from "@/components/legal/prose"
+import { pageMetadata } from "@/lib/seo"
 import { site } from "@/lib/site"
 
-export const metadata: Metadata = {
-  title: "Términos de uso · GRIDD",
+export const metadata: Metadata = pageMetadata({
+  title: "Términos de uso",
   description:
     "Las reglas de uso de Gridd: qué se puede publicar, qué no, y qué pasa cuando alguien se pasa de la raya.",
-}
+  path: "/terminos",
+})
 
 // TODO(GRI-25): texto redactado por el equipo, falta revisión de un abogado
 // antes del lanzamiento. Los puntos 5, 8 y 9 son los sensibles.

@@ -3,13 +3,15 @@ import Link from "next/link"
 
 import { LegalShell } from "@/components/legal/legal-shell"
 import { Prose } from "@/components/legal/prose"
+import { pageMetadata } from "@/lib/seo"
 import { site } from "@/lib/site"
 
-export const metadata: Metadata = {
-  title: "Privacidad · GRIDD",
+export const metadata: Metadata = pageMetadata({
+  title: "Privacidad",
   description:
     "Qué datos guarda Gridd, para qué los usa, con quién los comparte y cómo pedir que los borre.",
-}
+  path: "/privacidad",
+})
 
 // TODO(GRI-25): revisar contra la implementación real de auth (GRI-11) y de
 // analytics (GRI-26) antes del lanzamiento. Hoy describe la intención.

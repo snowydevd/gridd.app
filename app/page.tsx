@@ -1,4 +1,22 @@
+import type { Metadata } from "next";
+
 import {NavBar} from "@/components/navbar";
+
+// La landing mantiene su título propio: no lleva el sufijo del template.
+export const metadata: Metadata = {
+  title: { absolute: "GRIDD — Próximamente" },
+  description: "Estamos construyendo algo nuevo. Muy pronto.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    siteName: "GRIDD",
+    locale: "es_UY",
+    type: "website",
+    title: "GRIDD — Próximamente",
+    description: "Estamos construyendo algo nuevo. Muy pronto.",
+    url: "/",
+  },
+};
+
 const COLUMNS = 5;
 
 export default function Home() {
