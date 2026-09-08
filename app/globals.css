@@ -109,3 +109,136 @@
     @apply font-sans;
   }
 }
+
+/* ============================================================
+   Landing (/) — cortina de entrada y animaciones
+   Los estados ocultos cuelgan de `.js-anim` / `.js-intro`, que pone el
+   script inline y el controlador de la cortina. Sin JS o con
+   `prefers-reduced-motion` la página queda estática y completa.
+   ============================================================ */
+
+[data-reveal] {
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.js-anim [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.js-anim [data-reveal][data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* La cortina y el logo sólo se despegan del flujo con el controlador vivo. */
+.js-intro .intro-curtain,
+.js-intro .intro-flier-layer {
+  position: fixed;
+}
+
+/* Con la cortina fija, la sección sólo aporta recorrido de scroll. */
+.js-intro .intro-runway {
+  min-height: 62svh;
+}
+
+/* El hueco de la nav guarda el lugar; lo que se ve ahí es el logo volador.
+   Cuelga de `.js-anim` (que se aplica antes de pintar) y no del controlador,
+   para que no haya un frame con dos logos. */
+.js-anim .nav-logo-slot {
+  visibility: hidden;
+}
+
+.landing-nav {
+  transition:
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    backdrop-filter 0.45s ease;
+}
+
+.landing-nav[data-docked="true"] {
+  background-color: color-mix(in srgb, var(--background) 82%, transparent);
+  border-bottom-color: var(--border);
+  backdrop-filter: blur(12px);
+}
+
+/* Durante la cortina no se ve nada más que el logo en el medio. Mismo motivo
+   que arriba: sin esto el botón de descarga parpadea antes de hidratar. */
+.js-anim .landing-nav-tail {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease 0.1s;
+}
+
+.js-anim .landing-nav[data-docked="true"] .landing-nav-tail {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@keyframes intro-hint {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(5px);
+    opacity: 1;
+  }
+}
+
+.intro-hint {
+  animation: intro-hint 2.6s ease-in-out infinite;
+}
+
+@keyframes phone-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.phone {
+  animation: phone-float 7s ease-in-out infinite;
+}
+.phone[data-float="1"] {
+  animation-delay: -2.3s;
+}
+.phone[data-float="2"] {
+  animation-delay: -4.6s;
+}
+
+/* Regla que se dibuja cuando aparece el bloque que la contiene. */
+.rule-draw {
+  transform-origin: left center;
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+}
+.js-anim [data-reveal] .rule-draw {
+  transform: scaleX(0);
+}
+.js-anim [data-reveal][data-revealed="true"] .rule-draw {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  .js-anim [data-reveal],
+  .rule-draw,
+  .js-anim [data-reveal] .rule-draw {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .intro-hint,
+  .phone {
+    animation: none !important;
+  }
+  .intro-flier {
+    transition: none !important;
+  }
+}
