@@ -10,6 +10,9 @@ import {
   Delete02Icon,
 } from "@hugeicons/core-free-icons"
 
+import { PicadasNotice } from "@/components/legal/picadas-notice"
+import { ReportDialog } from "@/components/legal/report-dialog"
+import { TermsAcceptance } from "@/components/legal/terms-acceptance"
 import { PageHeader } from "@/components/page-header"
 import { EmptyState } from "@/components/states/empty-state"
 import { LoadingCards, LoadingState } from "@/components/states/loading-state"
@@ -430,6 +433,18 @@ function KitchenSink() {
           description="Probá con menos filtros o ampliá la distancia."
           className="p-8"
         />
+      </Section>
+
+      <Section
+        title="Legal"
+        hint="Las piezas de GRI-25. El reporte todavía no persiste: avisa y cierra."
+      >
+        <PicadasNotice />
+        <Row label="Reportar">
+          <ReportDialog eventTitle="Junada en el Prado" eventId="demo" />
+        </Row>
+        <Separator />
+        <TermsAcceptance className="max-w-prose" />
       </Section>
     </div>
   )
