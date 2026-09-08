@@ -1,6 +1,5 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
-
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
@@ -9,6 +8,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        // Acción primaria de la vista. El flúor es señal: una sola por pantalla (GRI-4).
+        brand:
+          "bg-brand text-brand-foreground hover:bg-[color-mix(in_oklch,var(--brand),white_12%)] focus-visible:border-brand focus-visible:ring-brand/40",
         outline:
           "border-border bg-input/30 hover:bg-input/50 hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
         secondary:
@@ -46,6 +48,7 @@ function Button({
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
   return (
     <ButtonPrimitive
+      nativeButton
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
