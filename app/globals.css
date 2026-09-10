@@ -107,14 +107,25 @@
   }
   html {
     @apply font-sans;
+    /* Reservado siempre: si no, el layout salta cuando la cortina suelta el
+       scroll al terminar. */
+    scrollbar-gutter: stable;
   }
 }
 
 /* ============================================================
    Landing (/) — cortina de entrada y animaciones
-   Los estados ocultos cuelgan de `.js-anim` / `.js-intro`, que pone el
-   script inline y el controlador de la cortina. Sin JS o con
-   `prefers-reduced-motion` la página queda estática y completa.
+
+   Dos estados distintos, los dos puestos por el script inline antes de pintar:
+
+   - `.js-anim` en el <html>: hay JS y se van a animar los reveals.
+   - `data-intro` en el <html>: qué hacer con la cortina. La intro corre en
+     cada carga: "play" mientras corre, "done" cuando el logo ya aterrizó en la
+     nav, y "skip" sólo si la hidratación nunca llegó y el failsafe la sacó.
+
+   Sin JS o con `prefers-reduced-motion` no hay ni clase ni atributo, y la
+   página queda estática y completa: portada con el logo centrado y todo el
+   contenido visible.
    ============================================================ */
 
 [data-reveal] {
@@ -133,21 +144,32 @@
   transform: none;
 }
 
-/* La cortina y el logo sólo se despegan del flujo con el controlador vivo. */
-.js-intro .intro-curtain,
-.js-intro .intro-flier-layer {
+/* Mientras la cortina corre no hay nada que scrollear: se va sola. */
+[data-intro="play"] {
+  overflow: hidden;
+}
+
+/* La cortina y el logo se despegan del flujo mientras la intro está viva y
+   también después: el logo volador se queda haciendo de logo de la nav. */
+[data-intro]:not([data-intro="skip"]) .intro-curtain,
+[data-intro]:not([data-intro="skip"]) .intro-flier-layer {
   position: fixed;
 }
 
-/* Con la cortina fija, la sección sólo aporta recorrido de scroll. */
-.js-intro .intro-runway {
-  min-height: 62svh;
+/* Fijada la cortina, la sección no aporta nada. Colapsarla deja la página
+   arriba de "La app" desde el arranque, así al terminar no hay salto. */
+[data-intro]:not([data-intro="skip"]) .intro-runway {
+  min-height: 0;
+}
+
+/* Si la cortina no va a correr, la portada directamente no existe. */
+[data-intro="skip"] .intro-runway {
+  display: none;
 }
 
 /* El hueco de la nav guarda el lugar; lo que se ve ahí es el logo volador.
-   Cuelga de `.js-anim` (que se aplica antes de pintar) y no del controlador,
-   para que no haya un frame con dos logos. */
-.js-anim .nav-logo-slot {
+   En "skip" no hay logo volador, así que el hueco es el logo de verdad. */
+[data-intro]:not([data-intro="skip"]) .nav-logo-slot {
   visibility: hidden;
 }
 
@@ -158,39 +180,26 @@
     backdrop-filter 0.45s ease;
 }
 
-.landing-nav[data-docked="true"] {
+/* Sin cortina la nav nace acoplada: no hay logo volador que esperar. */
+.landing-nav[data-docked="true"],
+[data-intro="skip"] .landing-nav {
   background-color: color-mix(in srgb, var(--background) 82%, transparent);
   border-bottom-color: var(--border);
   backdrop-filter: blur(12px);
 }
 
-/* Durante la cortina no se ve nada más que el logo en el medio. Mismo motivo
-   que arriba: sin esto el botón de descarga parpadea antes de hidratar. */
-.js-anim .landing-nav-tail {
+/* Durante la cortina no se ve nada más que el logo en el medio. Cuelga del
+   atributo, que ya está antes de pintar: sin eso el botón de descarga
+   parpadea. En "skip" no hay regla y se ve desde el primer frame. */
+[data-intro]:not([data-intro="skip"]) .landing-nav-tail {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.5s ease 0.1s;
 }
 
-.js-anim .landing-nav[data-docked="true"] .landing-nav-tail {
+[data-intro]:not([data-intro="skip"]) .landing-nav[data-docked="true"] .landing-nav-tail {
   opacity: 1;
   pointer-events: auto;
-}
-
-@keyframes intro-hint {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.55;
-  }
-  50% {
-    transform: translateY(5px);
-    opacity: 1;
-  }
-}
-
-.intro-hint {
-  animation: intro-hint 2.6s ease-in-out infinite;
 }
 
 @keyframes phone-float {
@@ -234,7 +243,6 @@
     transform: none !important;
     transition: none !important;
   }
-  .intro-hint,
   .phone {
     animation: none !important;
   }

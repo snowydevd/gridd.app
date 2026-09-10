@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { InlineScript } from "@/components/inline-script"
 import { GridLines } from "@/components/landing/grid-lines"
 import { IntroCurtain } from "@/components/landing/intro-curtain"
 import { LandingNav } from "@/components/landing/landing-nav"
@@ -67,12 +68,12 @@ export default function Home() {
   return (
     <>
       {/* Corre antes de pintar: evita que el contenido aparezca y recién
-          después se esconda para animarse. */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html:
-            'try{var d=document.documentElement;if(!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("js-anim");setTimeout(function(){if(!d.dataset.hydrated){d.classList.remove("js-anim")}},2500)}}catch(e){}',
-        }}
+          después se esconda para animarse, y prende la cortina de entrada.
+          El failsafe es importante: si React nunca hidrata, el controlador de
+          la cortina no existe y sin esto quedaría el scroll bloqueado detrás
+          de una portada que no se mueve más. */}
+      <InlineScript
+        html='(function(){try{var d=document.documentElement;if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("js-anim");d.setAttribute("data-intro","play");setTimeout(function(){if(!d.dataset.hydrated){d.classList.remove("js-anim");d.setAttribute("data-intro","skip")}},2500)}catch(e){}})()'
       />
 
       <LandingNav />

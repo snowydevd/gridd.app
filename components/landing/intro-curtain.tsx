@@ -5,9 +5,24 @@ import * as React from "react"
 import { Wordmark } from "@/components/brand/wordmark"
 import { GridLines } from "@/components/landing/grid-lines"
 
-/** El logo termina de acoplarse a los ~50vh de scroll: un gesto, no tres. */
-const TRAVEL_MIN = 300
-const TRAVEL_MAX = 560
+/** Respiro con el logo grande quieto antes de que arranque el viaje. */
+const HOLD = 400
+/** Lo que dura el viaje en sí. Con el respiro, 2.2s de punta a punta. */
+const TRAVEL = 1800
+/** Al saltear no cortamos de golpe: el tramo que falta se resuelve en esto. */
+const SKIP = 260
+
+/** Teclas que en una página normal scrollearían: valen como "sacá esto". */
+const SKIP_KEYS = new Set([
+  " ",
+  "ArrowDown",
+  "ArrowUp",
+  "PageDown",
+  "PageUp",
+  "End",
+  "Home",
+  "Escape",
+])
 
 const FLUOR = [223, 255, 0] as const
 const FOREGROUND = [242, 243, 245] as const
@@ -15,57 +30,95 @@ const FOREGROUND = [242, 243, 245] as const
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n)
 
-/** Arranca y termina suave: sin esto el logo salta con el primer píxel. */
+/** Arranca y termina suave: sin esto el logo salta con el primer frame. */
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
 
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+}
+
+/**
+ * `useLayoutEffect` no existe en el server y React avisa si lo llamás ahí.
+ * En el server no hay nada que reponer, así que cae a `useEffect` y listo.
+ */
+const useBeforePaint =
+  typeof window === "undefined" ? React.useEffect : React.useLayoutEffect
+
 /**
  * Cortina de entrada: pantalla completa gris con el wordmark en el medio que,
- * al primer scroll, viaja hasta su lugar en la nav.
+ * después de un respiro, viaja solo hasta su lugar en la nav.
  *
  * Se mide el rectángulo de origen (el logo grande, centrado y fijo) y el de
  * destino (`#nav-logo-slot`, también fijo). Los dos son estables respecto del
  * viewport, así que alcanza con medirlos una vez y por resize: en cada frame
  * sólo se interpola centro, escala y color.
  *
- * Sin JS o con `prefers-reduced-motion` nada de esto corre y queda una portada
- * estática con el logo centrado, que es una página perfectamente válida.
+ * Corre en cada carga de la landing. El estado vive en `data-intro` sobre el
+ * `<html>`, que pone el script inline antes de pintar: "play" mientras corre,
+ * "done" cuando aterrizó, "skip" sólo si el failsafe se rindió esperando a que
+ * React hidrate. Sin JS o con `prefers-reduced-motion` no hay atributo y queda
+ * una portada estática con el logo centrado, que es una página perfectamente
+ * válida.
  */
 function IntroCurtain() {
   const flierRef = React.useRef<HTMLDivElement>(null)
   const curtainRef = React.useRef<HTMLDivElement>(null)
+
+  useBeforePaint(() => {
+    if (prefersReducedMotion()) return
+
+    const root = document.documentElement
+
+    // En una carga normal el script inline ya dejó `data-intro` puesto antes de
+    // pintar y esto no hace nada. Cubre los dos casos en que el atributo falta:
+    // el remount de Strict Mode en dev, que resetea los atributos del <html> a
+    // los que maneja el JSX, y la navegación cliente de vuelta a la landing,
+    // donde el script inline no se re-ejecuta.
+    //
+    // Si el failsafe del script se rindió, el atributo está en "skip" y no lo
+    // tocamos: la página ya se acomodó sin cortina.
+    if (!root.dataset.intro) {
+      root.classList.add("js-anim")
+      root.dataset.intro = "play"
+    }
+
+    // Esto sí corre siempre: irse de la landing con la intro a medio camino
+    // se llevaría el `overflow: hidden` puesto a la página siguiente.
+    return () => {
+      delete root.dataset.intro
+    }
+  }, [])
 
   React.useEffect(() => {
     const flier = flierRef.current
     const curtain = curtainRef.current
     if (!flier || !curtain) return
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-
     const root = document.documentElement
-    root.classList.add("js-intro")
+    if (root.dataset.intro !== "play") return
 
     const nav = document.getElementById("landing-nav")
     let from: DOMRect | null = null
     let to: DOMRect | null = null
-    let travel = TRAVEL_MIN
     let frame = 0
+    let start = 0
+    let progress = 0
+    // Null mientras nadie pidió saltear; si no, desde qué progreso arrancó.
+    let skipFrom: number | null = null
+    let skipStart = 0
 
-    function measure() {
-      if (!flier) return
+    const measure = () => {
       // El origen se mide sin transformar, si no leeríamos el rect ya movido.
       flier.style.transform = "none"
       from = flier.getBoundingClientRect()
       to = document.getElementById("nav-logo-slot")?.getBoundingClientRect() ?? null
-      travel = Math.min(Math.max(window.innerHeight * 0.5, TRAVEL_MIN), TRAVEL_MAX)
     }
 
-    function render() {
-      frame = 0
-      if (!flier || !curtain || !from || !to || from.height === 0) return
+    const paint = (p: number) => {
+      if (!from || !to || from.height === 0) return
 
-      const p = clamp01(window.scrollY / travel)
       const e = easeInOutCubic(p)
 
       const scale = lerp(1, to.height / from.height, e)
@@ -84,27 +137,68 @@ function IntroCurtain() {
       nav?.setAttribute("data-docked", p > 0.55 ? "true" : "false")
     }
 
-    function onScroll() {
-      if (frame) return
-      frame = requestAnimationFrame(render)
+    const tick = (now: number) => {
+      if (!start) start = now
+
+      progress =
+        skipFrom === null
+          ? clamp01((now - start - HOLD) / TRAVEL)
+          : skipFrom + (1 - skipFrom) * clamp01((now - skipStart) / SKIP)
+
+      paint(progress)
+
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick)
+        return
+      }
+
+      frame = 0
+      // Suelta el scroll y deja el logo haciendo de logo de la nav.
+      root.dataset.intro = "done"
+      detachSkip()
     }
 
-    function onResize() {
+    // No cortamos en seco: re-anclamos el progreso para que lo que falta se
+    // resuelva en SKIP ms y el corte se vea continuo.
+    const requestSkip = () => {
+      if (skipFrom !== null || progress >= 1) return
+      skipFrom = progress
+      skipStart = performance.now()
+    }
+
+    const onSkip = (event: Event) => {
+      if (event.type === "keydown" && !SKIP_KEYS.has((event as KeyboardEvent).key)) {
+        return
+      }
+      requestSkip()
+    }
+
+    const onResize = () => {
       measure()
-      render()
+      paint(progress)
+    }
+
+    const detachSkip = () => {
+      window.removeEventListener("wheel", onSkip)
+      window.removeEventListener("touchstart", onSkip)
+      window.removeEventListener("keydown", onSkip)
     }
 
     measure()
-    render()
+    paint(0)
 
-    window.addEventListener("scroll", onScroll, { passive: true })
+    frame = requestAnimationFrame(tick)
     window.addEventListener("resize", onResize)
+    // El scroll ya está bloqueado por CSS, así que el gesto sólo tiene que
+    // avisarnos: no hace falta interceptarlo.
+    window.addEventListener("wheel", onSkip, { passive: true })
+    window.addEventListener("touchstart", onSkip, { passive: true })
+    window.addEventListener("keydown", onSkip)
 
     return () => {
-      window.removeEventListener("scroll", onScroll)
-      window.removeEventListener("resize", onResize)
       if (frame) cancelAnimationFrame(frame)
-      root.classList.remove("js-intro")
+      window.removeEventListener("resize", onResize)
+      detachSkip()
       nav?.setAttribute("data-docked", "false")
     }
   }, [])
@@ -119,9 +213,6 @@ function IntroCurtain() {
         className="intro-curtain pointer-events-none absolute inset-0 z-40 bg-muted"
       >
         <GridLines />
-        <p className="intro-hint absolute inset-x-0 bottom-8 text-center font-mono text-[0.68rem] tracking-[0.12em] text-muted-foreground uppercase">
-          Scrolleá
-        </p>
       </div>
 
       {/* El logo va fuera de la cortina: si fuera hijo heredaría su opacidad

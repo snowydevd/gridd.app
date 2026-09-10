@@ -50,9 +50,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // `suppressHydrationWarning` porque el script inline de la landing agrega
+    // `.js-anim` al <html> mientras el browser parsea, antes de que React
+    // hidrate. Sin esto React ve el `class` cambiado y tira mismatch.
     <html
       lang={site.locale}
       className={cn("dark h-full antialiased", geistSans.variable, geistMono.variable)}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
