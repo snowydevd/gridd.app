@@ -1,27 +1,252 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --accent: #d7ff00;
+@custom-variant dark (&:is(.dark *));
+
+/* gridd es dark-only: :root y .dark comparten la misma paleta */
+:root,
+.dark {
+  /* marca */
+  --brand: #dfff00;
+  --brand-foreground: #0b0b0c;
+
+  /* paleta base (GRI-4) */
+  --background: #0b0b0c;
+  --foreground: #f2f3f5;
+  --card: #17181b;
+  --card-foreground: #f2f3f5;
+  --popover: #17181b;
+  --popover-foreground: #f2f3f5;
+  --primary: #f2f3f5;
+  --primary-foreground: #0b0b0c;
+  --secondary: #22242a;
+  --secondary-foreground: #f2f3f5;
+  --muted: #22242a;
+  --muted-foreground: #8a8f98;
+  /* --accent es el hover/focus de los componentes shadcn, no el fluor */
+  --accent: #22242a;
+  --accent-foreground: #f2f3f5;
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: #2a2c30;
+  --input: #2a2c30;
+  --ring: #4a4e57;
+  --chart-1: var(--brand);
+  --chart-2: #f2f3f5;
+  --chart-3: #b9bec7;
+  --chart-4: #8a8f98;
+  --chart-5: #5b606a;
+  --radius: 0.625rem;
+  --sidebar: #17181b;
+  --sidebar-foreground: #f2f3f5;
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-accent: #22242a;
+  --sidebar-accent-foreground: #f2f3f5;
+  --sidebar-border: #2a2c30;
+  --sidebar-ring: #4a4e57;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
   --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  --font-heading: var(--font-geist-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 ::selection {
-  background: var(--accent);
-  color: #0a0a0a;
+  background: var(--brand);
+  color: var(--brand-foreground);
 }
 
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+    /* Reservado siempre: si no, el layout salta cuando la cortina suelta el
+       scroll al terminar. */
+    scrollbar-gutter: stable;
+  }
+}
+
+/* ============================================================
+   Landing (/) — cortina de entrada y animaciones
+
+   Dos estados distintos, los dos puestos por el script inline antes de pintar:
+
+   - `.js-anim` en el <html>: hay JS y se van a animar los reveals.
+   - `data-intro` en el <html>: qué hacer con la cortina. La intro corre en
+     cada carga: "play" mientras corre, "done" cuando el logo ya aterrizó en la
+     nav, y "skip" sólo si la hidratación nunca llegó y el failsafe la sacó.
+
+   Sin JS o con `prefers-reduced-motion` no hay ni clase ni atributo, y la
+   página queda estática y completa: portada con el logo centrado y todo el
+   contenido visible.
+   ============================================================ */
+
+[data-reveal] {
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.js-anim [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.js-anim [data-reveal][data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Mientras la cortina corre no hay nada que scrollear: se va sola. */
+[data-intro="play"] {
+  overflow: hidden;
+}
+
+/* La cortina y el logo se despegan del flujo mientras la intro está viva y
+   también después: el logo volador se queda haciendo de logo de la nav. */
+[data-intro]:not([data-intro="skip"]) .intro-curtain,
+[data-intro]:not([data-intro="skip"]) .intro-flier-layer {
+  position: fixed;
+}
+
+/* Fijada la cortina, la sección no aporta nada. Colapsarla deja la página
+   arriba de "La app" desde el arranque, así al terminar no hay salto. */
+[data-intro]:not([data-intro="skip"]) .intro-runway {
+  min-height: 0;
+}
+
+/* Si la cortina no va a correr, la portada directamente no existe. */
+[data-intro="skip"] .intro-runway {
+  display: none;
+}
+
+/* El hueco de la nav guarda el lugar; lo que se ve ahí es el logo volador.
+   En "skip" no hay logo volador, así que el hueco es el logo de verdad. */
+[data-intro]:not([data-intro="skip"]) .nav-logo-slot {
+  visibility: hidden;
+}
+
+.landing-nav {
+  transition:
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    backdrop-filter 0.45s ease;
+}
+
+/* Sin cortina la nav nace acoplada: no hay logo volador que esperar. */
+.landing-nav[data-docked="true"],
+[data-intro="skip"] .landing-nav {
+  background-color: color-mix(in srgb, var(--background) 82%, transparent);
+  border-bottom-color: var(--border);
+  backdrop-filter: blur(12px);
+}
+
+/* Durante la cortina no se ve nada más que el logo en el medio. Cuelga del
+   atributo, que ya está antes de pintar: sin eso el botón de descarga
+   parpadea. En "skip" no hay regla y se ve desde el primer frame. */
+[data-intro]:not([data-intro="skip"]) .landing-nav-tail {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease 0.1s;
+}
+
+[data-intro]:not([data-intro="skip"]) .landing-nav[data-docked="true"] .landing-nav-tail {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@keyframes phone-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.phone {
+  animation: phone-float 7s ease-in-out infinite;
+}
+.phone[data-float="1"] {
+  animation-delay: -2.3s;
+}
+.phone[data-float="2"] {
+  animation-delay: -4.6s;
+}
+
+/* Regla que se dibuja cuando aparece el bloque que la contiene. */
+.rule-draw {
+  transform-origin: left center;
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+}
+.js-anim [data-reveal] .rule-draw {
+  transform: scaleX(0);
+}
+.js-anim [data-reveal][data-revealed="true"] .rule-draw {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  .js-anim [data-reveal],
+  .rule-draw,
+  .js-anim [data-reveal] .rule-draw {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .phone {
+    animation: none !important;
+  }
+  .intro-flier {
+    transition: none !important;
+  }
+}
