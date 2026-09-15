@@ -47,3 +47,9 @@ next-env.d.ts
 .wrangler
 .dev.vars*
 !.dev.vars.example
+
+# documentos fuente de marca: quedan locales, no se versionan ni se publican.
+# /design vive fuera de /public a proposito: opennext empaqueta /public desde
+# el disco, asi que gitignorar un archivo ahi adentro no evita que se deployee.
+/design/
+/public/brand/*.pdf
