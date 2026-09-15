@@ -1,16 +1,13 @@
 import type { Metadata } from "next"
+import Image from "next/image"
 import Link from "next/link"
+
+import heroShot from "@/public/866shots_so.png"
 
 import { InlineScript } from "@/components/inline-script"
 import { GridLines } from "@/components/landing/grid-lines"
 import { IntroCurtain } from "@/components/landing/intro-curtain"
 import { LandingNav } from "@/components/landing/landing-nav"
-import {
-  ListScreen,
-  MapScreen,
-  Phone,
-  SplashScreen,
-} from "@/components/landing/phone"
 import { Reveal } from "@/components/landing/reveal"
 import { StoreButtons } from "@/components/landing/store-buttons"
 import { legalNav } from "@/lib/legal"
@@ -108,17 +105,15 @@ export default function Home() {
             </div>
 
             <Reveal delay={200} className="flex-1">
-              <div className="flex items-end justify-center gap-4 sm:gap-6">
-                <Phone float={1} className="mt-12 hidden w-[25%] max-w-[186px] sm:block">
-                  <ListScreen />
-                </Phone>
-                <Phone float={0} className="w-[56%] max-w-[224px] sm:w-[34%] sm:max-w-[268px]">
-                  <SplashScreen />
-                </Phone>
-                <Phone float={2} className="mt-12 hidden w-[25%] max-w-[186px] sm:block">
-                  <MapScreen />
-                </Phone>
-              </div>
+              <Image
+                src={heroShot}
+                alt="Tres pantallas de Gridd: el listado de encuentros, el mapa con los puntos de encuentro y la pantalla de arranque."
+                sizes="(min-width: 1280px) 48vw, 92vw"
+                placeholder="blur"
+                loading="eager"
+                fetchPriority="high"
+                className="mx-auto w-full max-w-[680px]"
+              />
             </Reveal>
           </div>
         </section>
