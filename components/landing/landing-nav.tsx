@@ -47,12 +47,12 @@ function LandingNav() {
               </Link>
             ))}
           </nav>
-          <Link
-            href="#descargar"
-            className="rounded-4xl bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition-colors outline-none hover:bg-[color-mix(in_oklch,var(--brand),white_12%)] focus-visible:ring-[3px] focus-visible:ring-brand/40"
+          <span
+            aria-disabled="true"
+            className="cursor-not-allowed rounded-4xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground select-none"
           >
-            Descargar
-          </Link>
+            Próximamente
+          </span>
         </div>
       </div>
     </header>

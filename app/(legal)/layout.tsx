@@ -19,12 +19,12 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
           >
             <Wordmark className="h-3.5 text-foreground" />
           </Link>
-          <Link
-            href="/#descargar"
-            className="rounded-4xl bg-brand px-4 py-2 text-sm font-semibold text-brand-foreground transition-colors outline-none hover:bg-[color-mix(in_oklch,var(--brand),white_12%)] focus-visible:ring-[3px] focus-visible:ring-brand/40"
+          <span
+            aria-disabled="true"
+            className="cursor-not-allowed rounded-4xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground select-none"
           >
-            Descargar
-          </Link>
+            Próximamente
+          </span>
         </div>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-5 pt-8 pb-16 sm:px-8 lg:px-12">
