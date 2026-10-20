@@ -22,7 +22,7 @@ function LegalShell({
       <PageHeader eyebrow="Legal" title={title} description={description} />
       <div className="flex flex-col gap-6">
         {updated && (
-          <p className="font-mono text-[0.72rem] tracking-[0.06em] text-muted-foreground">
+          <p className="text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-muted-foreground">
             Última actualización: {site.legalUpdatedAt}
           </p>
         )}

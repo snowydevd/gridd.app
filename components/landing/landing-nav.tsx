@@ -5,6 +5,7 @@ import { Wordmark } from "@/components/brand/wordmark"
 const links = [
   { href: "#app", label: "La app" },
   { href: "#como-funciona", label: "Cómo funciona" },
+  { href: "#garage", label: "Garage" },
   { href: "/normas", label: "Normas" },
 ] as const
 
@@ -40,7 +41,7 @@ function LandingNav() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="font-mono text-[0.72rem] tracking-[0.06em] text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground"
+                className="text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground"
               >
                 {link.label}
               </Link>

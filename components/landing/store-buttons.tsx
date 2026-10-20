@@ -48,7 +48,7 @@ function StoreButtons({ className }: { className?: string }) {
             <span className="flex flex-col items-start leading-none">
               <span
                 className={cn(
-                  "font-mono text-[0.6rem] tracking-[0.08em] uppercase",
+                  "text-[0.6rem] font-semibold tracking-[0.12em] uppercase",
                   store.primary ? "text-brand-foreground/70" : "text-muted-foreground"
                 )}
               >
@@ -59,8 +59,8 @@ function StoreButtons({ className }: { className?: string }) {
           </Link>
         ))}
       </div>
-      <p className="font-mono text-[0.68rem] tracking-[0.06em] text-muted-foreground">
-        Muy pronto. Mientras tanto anda en el navegador.
+      <p className="text-[0.68rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
+        Muy pronto en Google Play y App Store.
       </p>
     </div>
   )

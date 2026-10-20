@@ -31,7 +31,7 @@ export default function TerminosPage() {
           pasa antes, durante y después.
         </p>
         <p>
-          Usar el sitio, publicar un evento o crear una cuenta implica aceptar
+          Usar la app, publicar un evento o crear una cuenta implica aceptar
           estos términos y la{" "}
           <Link href="/privacidad">política de privacidad</Link>.
         </p>
@@ -135,7 +135,7 @@ export default function TerminosPage() {
         <h2>9. Cambios y ley aplicable</h2>
         <p>
           Podemos actualizar estos términos. Cuando el cambio sea relevante lo
-          avisamos en el sitio; la fecha de arriba siempre dice cuándo fue la
+          avisamos en la app; la fecha de arriba siempre dice cuándo fue la
           última revisión. Seguir usando Gridd después de un cambio implica
           aceptarlo.
         </p>

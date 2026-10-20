@@ -4,15 +4,11 @@ import { Wordmark } from "@/components/brand/wordmark"
 import { legalNav } from "@/lib/legal"
 import { site } from "@/lib/site"
 
-/**
- * Pie del shell. Es la única entrada permanente a las páginas legales,
- * así que va en todas las vistas de la app.
- * El `pb` extra deja pasar la nav inferior fija en mobile.
- */
+/** Pie de las páginas legales, con los links entre ellas. */
 function SiteFooter() {
   return (
     <footer className="border-t border-border">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-5 pt-8 pb-28 sm:px-8 md:pb-10 lg:px-12">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-5 py-8 sm:px-8 md:py-10 lg:px-12">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-col gap-2">
             <Wordmark className="h-3 self-start text-muted-foreground" />
@@ -30,7 +26,7 @@ function SiteFooter() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="font-mono text-xs tracking-[0.06em] text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground"
+                className="text-xs font-semibold tracking-[0.12em] uppercase text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground"
               >
                 {item.label}
               </Link>

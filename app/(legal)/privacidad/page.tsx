@@ -45,7 +45,7 @@ export default function PrivacidadPage() {
             reportar un evento, junto con la cuenta que lo mandó.
           </li>
           <li>
-            <strong>Uso del sitio:</strong> métricas agregadas de páginas
+            <strong>Uso de la app:</strong> métricas agregadas de pantallas
             vistas, sin perfilado ni publicidad.
           </li>
         </ul>
@@ -107,9 +107,9 @@ export default function PrivacidadPage() {
 
         <h2>8. Cookies</h2>
         <p>
-          Usamos las cookies necesarias para mantener la sesión iniciada. Las de
-          medición, si las hay, son anónimas y agregadas: no te siguen entre
-          sitios.
+          Este sitio no usa cookies de sesión: la cuenta vive en la app, que
+          guarda la sesión en tu teléfono. Las métricas de uso, si las hay, son
+          anónimas y agregadas: no te siguen entre sitios ni apps.
         </p>
 
         <h2>9. Menores</h2>
@@ -122,7 +122,7 @@ export default function PrivacidadPage() {
         <h2>10. Cambios</h2>
         <p>
           Si cambiamos esta política actualizamos la fecha de arriba y, cuando
-          el cambio sea relevante, lo avisamos en el sitio.
+          el cambio sea relevante, lo avisamos en la app.
         </p>
       </Prose>
     </LegalShell>

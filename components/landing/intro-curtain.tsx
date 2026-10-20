@@ -24,7 +24,7 @@ const SKIP_KEYS = new Set([
   "Escape",
 ])
 
-const FLUOR = [223, 255, 0] as const
+const FLUOR = [226, 255, 59] as const
 const FOREGROUND = [242, 243, 245] as const
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t

@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils"
 
 /**
- * Encabezado de página: micro-label en mono + título ajustado.
- * Es la tipografía de la landing bajada a escala de app.
+ * Encabezado de página: micro-label + título en Chivo, la tipografía de la
+ * landing bajada de escala.
  */
 function PageHeader({
   eyebrow,
@@ -27,11 +27,11 @@ function PageHeader({
     >
       <div className="flex flex-col gap-2">
         {eyebrow && (
-          <p className="font-mono text-[0.72rem] tracking-[0.06em] text-muted-foreground">
+          <p className="text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-muted-foreground">
             {eyebrow}
           </p>
         )}
-        <h1 className="text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">
+        <h1 className="text-2xl tracking-[-0.01em] sm:text-3xl">
           {title}
         </h1>
         {description && (
