@@ -1,12 +1,15 @@
 import Link from "next/link"
 
 import { Wordmark } from "@/components/brand/wordmark"
+import { CONTAINER } from "@/components/landing/section"
+import { cn } from "@/lib/utils"
 
 const links = [
-  { href: "#app", label: "La app" },
+  { href: "#funciones", label: "Funciones" },
   { href: "#como-funciona", label: "Cómo funciona" },
   { href: "#garage", label: "Garage" },
-  { href: "/normas", label: "Normas" },
+  { href: "#organizadores", label: "Organizadores" },
+  { href: "#preguntas", label: "Preguntas" },
 ] as const
 
 /**
@@ -24,7 +27,7 @@ function LandingNav() {
       data-docked="false"
       className="landing-nav fixed inset-x-0 top-0 z-50 border-b border-transparent"
     >
-      <div className="flex h-16 items-center justify-between px-8 sm:px-12 lg:px-16">
+      <div className={cn("flex h-16 items-center justify-between", CONTAINER)}>
         <Link
           href="/"
           aria-label="Gridd — inicio"
@@ -36,7 +39,7 @@ function LandingNav() {
         </Link>
 
         <div className="landing-nav-tail flex items-center gap-1 sm:gap-6">
-          <nav aria-label="Secciones" className="hidden items-center gap-6 md:flex">
+          <nav aria-label="Secciones" className="hidden items-center gap-6 lg:flex">
             {links.map((link) => (
               <Link
                 key={link.href}
