@@ -218,7 +218,31 @@
   transform: scaleX(1);
 }
 
+/* Cinta de tipos de encuentro. Lleva la lista dos veces y corre media
+   cinta: cuando termina, la segunda copia está justo donde arrancó la
+   primera y el salto no se ve. */
+.marquee {
+  animation: marquee 48s linear infinite;
+}
+.marquee:hover {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  /* Quieta, la cinta pasa a ser una lista que baja de renglón. */
+  .marquee {
+    animation: none;
+    width: auto;
+    flex-wrap: wrap;
+  }
+  .marquee > [aria-hidden] {
+    display: none;
+  }
   [data-reveal],
   .js-anim [data-reveal],
   .rule-draw,
