@@ -44,7 +44,7 @@ function LandingNav() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground"
+                className="text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground"
               >
                 {link.label}
               </Link>
