@@ -2,3 +2,7 @@
 # https://opennext.js.org/cloudflare/caching#static-assets-caching
 /_next/static/*
   Cache-Control: public,max-age=31536000,immutable
+
+# Universal Links: iOS exige que el archivo (sin extensión) se sirva como JSON.
+/.well-known/apple-app-site-association
+  Content-Type: application/json
