@@ -1,7 +1,6 @@
 import Link from "next/link"
 
 import { Wordmark } from "@/components/brand/wordmark"
-import { GridLines } from "@/components/landing/grid-lines"
 import { CONTAINER, EYEBROW } from "@/components/landing/section"
 import { legalNav } from "@/lib/legal"
 import { site } from "@/lib/site"
@@ -22,7 +21,6 @@ const LINK =
 function LandingFooter() {
   return (
     <footer className="relative border-t border-border">
-      <GridLines />
       <div className={cn("relative flex flex-col gap-12 py-14", CONTAINER)}>
         <div className="grid grid-cols-2 gap-10 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
           <div className="col-span-2 flex flex-col gap-4 lg:col-span-1">

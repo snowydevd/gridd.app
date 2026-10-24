@@ -1,17 +1,16 @@
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 
-import { GridLines } from "@/components/landing/grid-lines"
 import { Reveal } from "@/components/landing/reveal"
 import { cn } from "@/lib/utils"
 
-/** Ancho y márgenes del contenido de la landing. La retícula usa los mismos. */
+/** Ancho y márgenes del contenido de la landing. */
 const CONTAINER = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12"
 
 const EYEBROW = "text-[0.72rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase"
 
 const H2 = "text-[clamp(1.9rem,4.2vw,3rem)] leading-[1.02] tracking-[-0.02em] text-balance"
 
-/** Sección de la landing: borde arriba, retícula de fondo y el contenido centrado. */
+/** Sección de la landing: borde arriba y el contenido centrado. */
 function Section({
   id,
   className,
@@ -26,7 +25,6 @@ function Section({
       id={id}
       className={cn("relative scroll-mt-16 border-t border-border py-16 sm:py-20", className)}
     >
-      <GridLines />
       <div className={cn("relative", CONTAINER)}>{children}</div>
     </section>
   )

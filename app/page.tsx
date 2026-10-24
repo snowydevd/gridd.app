@@ -26,7 +26,6 @@ import garageShot from "@/public/screens/garage.jpeg"
 import homeShot from "@/public/screens/inicio.jpeg"
 
 import { InlineScript } from "@/components/inline-script"
-import { GridLines } from "@/components/landing/grid-lines"
 import { IntroCurtain } from "@/components/landing/intro-curtain"
 import { LandingFooter } from "@/components/landing/landing-footer"
 import { LandingNav } from "@/components/landing/landing-nav"
@@ -219,7 +218,6 @@ export default function Home() {
             <div className="absolute inset-0 bg-linear-to-r from-background via-background/80 to-background/30" />
             <div className="absolute inset-0 bg-linear-to-b from-background/40 via-transparent to-background" />
           </div>
-          <GridLines />
           <div
             className={cn(
               "relative grid items-center gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-8",
