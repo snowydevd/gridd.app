@@ -8,7 +8,7 @@
 	// Deployment de Convex del que lee la web (lib/convex.ts). Es público: la app usa la misma URL.
 	// Por ahora todo vive en el de desarrollo; cambiarlo al de producción cuando exista.
 	"vars": {
-		"CONVEX_URL": "https://elated-echidna-744.convex.cloud"
+		"CONVEX_URL": "https://clean-rabbit-734.convex.cloud"
 	},
 	"observability": {
 		"enabled": true
