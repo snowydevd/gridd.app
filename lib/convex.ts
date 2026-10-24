@@ -1,25 +1,41 @@
 import { cache } from "react"
 
 /**
- * Lectura de Convex (el backend de la app mobile) por su API HTTP, sin el SDK:
- * la web sólo necesita un par de queries públicas, del lado del server.
+ * Convex (el backend de la app mobile) por su API HTTP, sin el SDK: la web sólo necesita un par
+ * de funciones públicas, del lado del server.
  * `CONVEX_URL` es la URL del deployment (https://<nombre>.convex.cloud).
  */
-async function query<T>(path: string, args: Record<string, unknown>): Promise<T> {
+async function call<T>(kind: "query" | "mutation", path: string, args: Record<string, unknown>): Promise<T> {
   const url = process.env.CONVEX_URL
   if (!url) throw new Error("Falta CONVEX_URL.")
-  const res = await fetch(`${url}/api/query`, {
+  const res = await fetch(`${url}/api/${kind}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ path, args, format: "json" }),
     // Un evento cambia (anotados, cancelado): siempre el dato fresco.
     cache: "no-store",
   })
-  if (!res.ok) throw new Error(`Convex respondió ${res.status} en ${path}.`)
-  const body = (await res.json()) as { status: "success"; value: T } | { status: "error"; errorMessage: string }
-  if (body.status !== "success") throw new Error(body.errorMessage)
+  const body = (await res.json().catch(() => null)) as
+    | { status: "success"; value: T }
+    | { status: "error"; errorMessage: string; errorData?: { code?: string; message?: string } }
+    | null
+  if (!body) throw new Error(`Convex respondió ${res.status} en ${path}.`)
+  if (body.status !== "success") throw new ConvexCallError(body.errorMessage, body.errorData)
   return body.value
 }
+
+/** Error de una función de Convex; `data` trae el `{ code, message }` de `fail()` si lo hay. */
+export class ConvexCallError extends Error {
+  constructor(
+    message: string,
+    readonly data?: { code?: string; message?: string }
+  ) {
+    super(message)
+  }
+}
+
+const query = <T>(path: string, args: Record<string, unknown>) => call<T>("query", path, args)
+export const mutation = <T>(path: string, args: Record<string, unknown>) => call<T>("mutation", path, args)
 
 /** La forma de `events.getBySlug` (mobile/convex/lib/eventView.ts), con lo que usa la web. */
 export type GriddEvent = {
