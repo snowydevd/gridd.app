@@ -3,7 +3,6 @@
 import * as React from "react"
 
 import { Wordmark } from "@/components/brand/wordmark"
-import { GridLines } from "@/components/landing/grid-lines"
 
 /** Respiro con el logo grande quieto antes de que arranque el viaje. */
 const HOLD = 400
@@ -211,9 +210,7 @@ function IntroCurtain() {
       <div
         ref={curtainRef}
         className="intro-curtain pointer-events-none absolute inset-0 z-40 bg-muted"
-      >
-        <GridLines />
-      </div>
+      />
 
       {/* El logo va fuera de la cortina: si fuera hijo heredaría su opacidad
           y se desvanecería antes de llegar a la nav. */}
