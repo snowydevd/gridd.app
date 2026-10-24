@@ -1,0 +1,86 @@
+<style>
+  .phones { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; }
+  .pick { cursor: pointer; border-radius: 22px; padding: 10px; border: 2px solid transparent; width: 320px; }
+  .pick.selected { border-color: #E2FF3B; }
+  .pick h3 { margin: 4px 6px 4px; }
+  .pick p.desc { margin: 0 6px 10px; font-size: 13px; opacity: .75; min-height: 52px; }
+  .phone { width: 300px; height: 620px; overflow: hidden; border-radius: 28px; padding: 18px; box-sizing: border-box; position: relative;
+           background: #0B0B0C; color: #F2F3F5; font-family: system-ui, sans-serif; border: 1px solid #2A2C30; }
+  .wm { font-weight: 900; letter-spacing: 1px; font-size: 18px; }
+  .wm i { display: inline-block; width: 4px; height: 14px; background: #E2FF3B; margin: 0 2px; vertical-align: -1px; }
+  .h1 { font-weight: 900; text-transform: uppercase; font-size: 24px; line-height: 1.05; margin: 22px 0 6px; letter-spacing: -.3px; }
+  .sub { color: #8A8F98; font-size: 13px; line-height: 1.4; }
+  .lbl { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: #8A8F98; margin: 18px 0 8px; }
+  .input { border: 1px solid #2A2C30; background: #17181B; border-radius: 12px; padding: 12px; font-size: 14px; color: #F2F3F5; }
+  .input span { color: #8A8F98; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-size: 12px; padding: 7px 11px; border-radius: 99px; border: 1px solid #2A2C30; background: #17181B; }
+  .chip.on { background: #F2F3F5; color: #0B0B0C; border-color: #F2F3F5; font-weight: 600; }
+  .btn { margin-top: 20px; background: #E2FF3B; color: #0B0B0C; font-weight: 800; text-align: center; padding: 14px; border-radius: 14px; font-size: 14px; }
+  .fine { font-size: 11px; color: #4A4E55; text-align: center; margin-top: 10px; }
+  .prog { display: flex; gap: 6px; margin-top: 18px; }
+  .prog div { flex: 1; height: 3px; border-radius: 2px; background: #2A2C30; }
+  .prog div.on { background: #E2FF3B; }
+  .bottom { position: absolute; left: 18px; right: 18px; bottom: 18px; }
+  .back { color: #8A8F98; font-size: 13px; text-align: center; margin-top: 12px; }
+  .photo { position: absolute; inset: 0 0 auto 0; height: 230px; background: url(/files/midnight-rambla.jpg) center/cover; }
+  .photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,11,12,.2), #0B0B0C); }
+  .over { position: relative; }
+</style>
+
+<h2>Waitlist de organizadores: ¿qué formato?</h2>
+<p class="subtitle">Las tres piden lo mismo: Instagram, tipo de eventos y cuánta gente junta. Cambia cómo se presenta. Pensadas para abrirse desde un DM de Instagram (en el celular).</p>
+
+<div class="phones">
+
+  <div class="pick" data-choice="a" onclick="toggleSelect(this)">
+    <h3>A · Todo en una pantalla</h3>
+    <p class="desc">Título, tres campos y el botón. Se completa en 20 segundos sin cambiar de pantalla.</p>
+    <div class="phone">
+      <span class="wm">GR<i></i>DD</span>
+      <div class="h1">Publicá tus encuentros en Gridd</div>
+      <div class="sub">Dejanos tus datos y te escribimos por Instagram.</div>
+      <div class="lbl">Tu Instagram</div>
+      <div class="input"><span>@</span>jdmuruguay</div>
+      <div class="lbl">¿Qué eventos hacés?</div>
+      <div class="chips"><span class="chip">Encuentro</span><span class="chip">Rodada</span><span class="chip">Cars &amp; Coffee</span><span class="chip">Exposición</span><span class="chip">Clásicos</span><span class="chip on">JDM</span><span class="chip">Tuning</span><span class="chip">4x4</span><span class="chip">Motos</span><span class="chip">Pista</span><span class="chip">Otro</span></div>
+      <div class="lbl">¿Cuánta gente suele ir?</div>
+      <div class="chips"><span class="chip">Menos de 30</span><span class="chip on">30–100</span><span class="chip">100–300</span><span class="chip">Más de 300</span></div>
+      <div class="btn">Anotarme</div>
+    </div>
+  </div>
+
+  <div class="pick" data-choice="b" onclick="toggleSelect(this)">
+    <h3>B · Una pregunta por pantalla</h3>
+    <p class="desc">Tres pasos cortos con barra de progreso. Se siente más liviano en el celular, pero son tres toques más.</p>
+    <div class="phone">
+      <span class="wm">GR<i></i>DD</span>
+      <div class="prog"><div class="on"></div><div class="on"></div><div></div></div>
+      <div class="lbl" style="margin-top:28px">Paso 2 de 3</div>
+      <div class="h1" style="margin-top:4px">¿Qué eventos hacés?</div>
+      <div class="sub">Elegí todos los que apliquen.</div>
+      <div class="chips" style="margin-top:16px"><span class="chip">Encuentro</span><span class="chip">Rodada</span><span class="chip">Cars &amp; Coffee</span><span class="chip">Exposición</span><span class="chip">Clásicos</span><span class="chip on">JDM</span><span class="chip on">Tuning</span><span class="chip">4x4</span><span class="chip">Motos</span><span class="chip">Pista</span><span class="chip">Otro</span></div>
+      <div class="bottom"><div class="btn">Siguiente</div><div class="back">Volver</div></div>
+    </div>
+  </div>
+
+  <div class="pick" data-choice="c" onclick="toggleSelect(this)">
+    <h3>C · Una pantalla, con foto</h3>
+    <p class="desc">Igual que A, pero arranca con una foto de encuentro arriba. Más marca, un poco más de scroll.</p>
+    <div class="phone">
+      <div class="photo"></div>
+      <div class="over">
+        <span class="wm">GR<i></i>DD</span>
+        <div class="h1" style="margin-top:120px">Publicá tus encuentros en Gridd</div>
+        <div class="sub">Dejanos tus datos y te escribimos por Instagram.</div>
+        <div class="lbl">Tu Instagram</div>
+        <div class="input"><span>@</span>jdmuruguay</div>
+        <div class="lbl">¿Qué eventos hacés?</div>
+        <div class="chips"><span class="chip">Encuentro</span><span class="chip">Rodada</span><span class="chip on">JDM</span><span class="chip">Tuning</span><span class="chip">+7</span></div>
+        <div class="lbl">¿Cuánta gente suele ir?</div>
+        <div class="chips"><span class="chip">Menos de 30</span><span class="chip on">30–100</span><span class="chip">100–300</span><span class="chip">Más de 300</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
