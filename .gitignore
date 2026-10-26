@@ -55,3 +55,6 @@ next-env.d.ts
 # el disco, asi que gitignorar un archivo ahi adentro no evita que se deployee.
 /design/
 /public/brand/*.pdf
+
+# sesiones de brainstorming de superpowers
+/.superpowers

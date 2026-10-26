@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import {
   Alert02Icon,
+  Calendar03Icon,
+  CustomerSupportIcon,
   Delete02Icon,
   Mail01Icon,
   MessageQuestionIcon,
@@ -23,10 +25,11 @@ export const metadata: Metadata = pageMetadata({
 
 type HugeIcon = React.ComponentProps<typeof HugeiconsIcon>["icon"]
 
-/** Vías de contacto. El asunto sugerido nos ordena la casilla. */
+/** Vías de contacto. Cada una va a su casilla; el asunto sugerido ordena dentro de ella. */
 const channels: {
   icon: HugeIcon
   title: string
+  email: string
   subject: string
   body: string
   /** Se pinta en destructive: es la vía que no puede esperar. */
@@ -35,27 +38,45 @@ const channels: {
   {
     icon: Alert02Icon,
     title: "Reportar un evento",
+    email: site.emails.moderacion,
     subject: "Reporte de evento",
     body: "Usá el botón de reporte en la ficha del evento: llega con el link y el motivo ya cargados. Si no podés, escribinos con el link.",
     urgent: true,
   },
   {
-    icon: Delete02Icon,
-    title: "Baja de cuenta o de un evento",
-    subject: "Baja de cuenta",
-    body: "Escribinos desde el mail de la cuenta. Borramos cuenta y eventos dentro de los 10 días hábiles y te confirmamos cuando está hecho.",
-  },
-  {
     icon: MessageQuestionIcon,
     title: "Reclamo por moderación",
+    email: site.emails.moderacion,
     subject: "Reclamo por moderación",
     body: "Si bajamos un evento tuyo y creés que fue un error, contanos cuál era y por qué. Lo revisa una persona.",
   },
   {
-    icon: Mail01Icon,
-    title: "Cualquier otra cosa",
+    icon: Delete02Icon,
+    title: "Baja de cuenta o de un evento",
+    email: site.emails.soporte,
+    subject: "Baja de cuenta",
+    body: "Escribinos desde el mail de la cuenta. Borramos cuenta y eventos dentro de los 10 días hábiles y te confirmamos cuando está hecho.",
+  },
+  {
+    icon: CustomerSupportIcon,
+    title: "Dudas o algo que no anda",
+    email: site.emails.soporte,
     subject: "Consulta",
-    body: "Prensa, organizadores, predios, o simplemente algo que no anda.",
+    body: "Cómo se usa algo, un error en la app o una cuenta que no te deja entrar.",
+  },
+  {
+    icon: Calendar03Icon,
+    title: "Organizadores",
+    email: site.emails.organizadores,
+    subject: "Organizador",
+    body: "Clubes, predios y quienes organizan meets: publicar eventos, alianzas o cualquier cosa del lado de la organización.",
+  },
+  {
+    icon: Mail01Icon,
+    title: "Prensa y todo lo demás",
+    email: site.emails.hola,
+    subject: "Consulta",
+    body: "Prensa, propuestas o lo que no entre en las otras.",
   },
 ]
 
@@ -63,18 +84,7 @@ export default function ContactoPage() {
   return (
     <LegalShell
       title="Contacto y bajas"
-      description={
-        <>
-          Todo entra por la misma casilla:{" "}
-          <a
-            href={`mailto:${site.contactEmail}`}
-            className="text-foreground underline underline-offset-4 hover:text-brand"
-          >
-            {site.contactEmail}
-          </a>
-          . El asunto nos ayuda a ordenarla.
-        </>
-      }
+      description="Cada tema tiene su casilla. Escribí a la que corresponda y usá el asunto sugerido: nos ayuda a responder más rápido."
       updated={false}
     >
       <div className="grid gap-3 sm:grid-cols-2">
@@ -100,12 +110,15 @@ export default function ContactoPage() {
                 {channel.body}
               </p>
               <a
-                href={`mailto:${site.contactEmail}?subject=${encodeURIComponent(
+                href={`mailto:${channel.email}?subject=${encodeURIComponent(
                   `[${channel.subject}] `
                 )}`}
-                className="font-mono text-xs tracking-[0.04em] text-foreground underline underline-offset-4 hover:text-brand"
+                className="flex flex-col gap-1 font-mono text-xs tracking-[0.04em] text-foreground underline underline-offset-4 hover:text-brand"
               >
-                Asunto: [{channel.subject}]
+                <span>{channel.email}</span>
+                <span className="text-muted-foreground">
+                  Asunto: [{channel.subject}]
+                </span>
               </a>
             </CardContent>
           </Card>
@@ -126,6 +139,14 @@ export default function ContactoPage() {
           <li>
             Los respaldos técnicos se pisan solos a los 30 días. El detalle está
             en la <Link href="/privacidad">política de privacidad</Link>.
+          </li>
+          <li>
+            Para pedir una copia de tus datos, corregirlos u oponerte a que los
+            usemos, escribí a{" "}
+            <a href={`mailto:${site.emails.privacidad}`}>
+              {site.emails.privacidad}
+            </a>{" "}
+            desde el mail de tu cuenta.
           </li>
         </ul>
 

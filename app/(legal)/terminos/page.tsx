@@ -14,7 +14,7 @@ export const metadata: Metadata = pageMetadata({
 })
 
 // TODO(GRI-25): texto redactado por el equipo, falta revisión de un abogado
-// antes del lanzamiento. Los puntos 5, 8 y 9 son los sensibles.
+// antes del lanzamiento. Los puntos 5, 9 y 10 son los sensibles.
 export default function TerminosPage() {
   return (
     <LegalShell
@@ -24,8 +24,8 @@ export default function TerminosPage() {
       <Prose>
         <h2>1. Qué es Gridd</h2>
         <p>
-          Gridd es un tablón donde cualquiera puede publicar y encontrar
-          encuentros fierreros: junadas, rodadas, expos, salidas y fechas de
+          Gridd es un tablón donde cualquiera puede encontrar, y los
+          organizadores aprobados pueden publicar, encuentros fierreros: rodadas, expos, cars &amp; coffee, salidas y fechas de
           pista. Gridd <strong>no organiza ninguno de esos eventos</strong>: los
           publica quien los organiza, y es esa persona la responsable de lo que
           pasa antes, durante y después.
@@ -38,7 +38,11 @@ export default function TerminosPage() {
 
         <h2>2. Quién puede usarlo</h2>
         <ul>
-          <li>Tenés que ser mayor de 18 años para publicar eventos.</li>
+          <li>
+            Tenés que ser mayor de 18 años para crear una cuenta. Ver la
+            sección de menores de la{" "}
+            <Link href="/privacidad">política de privacidad</Link>.
+          </li>
           <li>
             Los datos de tu cuenta tienen que ser tuyos y reales. Una cuenta por
             persona.
@@ -51,10 +55,21 @@ export default function TerminosPage() {
 
         <h2>3. Qué podés publicar</h2>
         <p>
-          Eventos reales, con fecha, hora y lugar concretos, que puedas
-          organizar o de los que tengas autorización para difundir. La
+          Para publicar eventos tenés que pedir ser organizador desde la app.
+          Lo aprueba una persona del equipo, y podemos quitar ese permiso si no
+          se cumplen estos términos o las{" "}
+          <Link href="/normas">normas de la comunidad</Link>.
+        </p>
+        <p>
+          Se publican eventos reales, con fecha, hora y lugar concretos, que
+          puedas organizar o de los que tengas autorización para difundir. La
           información tiene que ser exacta: si cambia la fecha o el lugar,
           actualizá el evento o bajalo.
+        </p>
+        <p>
+          Cualquier cuenta puede además subir una foto de perfil, cargar sus
+          autos en el garage, marcar que va a un evento y seguir a
+          organizadores. Todo eso también tiene que cumplir estas reglas.
         </p>
 
         <h2>4. Qué no podés publicar</h2>
@@ -79,23 +94,43 @@ export default function TerminosPage() {
             persona o un grupo.
           </li>
           <li>Material sobre el que no tenés derechos: fotos, logos, videos.</li>
+          <li>
+            Portadas o fotos de perfil con contenido sexual, desnudos o +18
+            (NSFW), violencia explícita, símbolos de odio, armas o drogas.
+          </li>
+          <li>
+            Fotos de personas reconocibles sin su permiso, o datos de terceros
+            como teléfonos, direcciones o matrículas.
+          </li>
+          <li>
+            Perfiles que se hagan pasar por otra persona, un club, una marca o
+            el equipo de Gridd.
+          </li>
           <li>Cualquier cosa que sea delito en {site.jurisdiction}.</li>
         </ul>
+        <p>
+          El detalle de qué se acepta en fotos y perfiles está en las{" "}
+          <Link href="/normas">normas de la comunidad</Link>.
+        </p>
 
         <h2>5. Moderación</h2>
         <p>
           Revisamos lo que se reporta y también lo que nos llama la atención por
-          nuestra cuenta. Si un evento rompe estas reglas podemos bajarlo sin
-          aviso previo, y si el patrón se repite podemos bloquear la cuenta.
-          Cuando corresponda, avisamos a la autoridad competente.
+          nuestra cuenta. Si un evento, una foto o un perfil rompe estas reglas
+          podemos bajarlo o cambiarlo sin aviso previo, quitar el permiso de
+          organizador, y si el patrón se repite, suspender o bloquear la
+          cuenta. Cuando corresponda, avisamos a la autoridad competente.
         </p>
         <p>
-          Toda ficha de evento tiene un botón de reporte con motivos
-          predefinidos. Los reportes por picadas se miran primero.
+          Cada evento y cada perfil tiene un botón de reporte. Los reportes que
+          hablan de picadas o de riesgo para terceros se miran primero.
         </p>
         <p>
           Si creés que bajamos algo por error, escribinos a{" "}
-          <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a> y lo
+          <a href={`mailto:${site.emails.moderacion}`}>
+            {site.emails.moderacion}
+          </a>{" "}
+          y lo
           revisamos.
         </p>
 
@@ -103,9 +138,16 @@ export default function TerminosPage() {
         <p>
           Lo que publicás sigue siendo tuyo. Al subirlo nos das permiso para
           mostrarlo dentro de Gridd y en las vistas previas que se generan al
-          compartir un evento en redes o mensajería. Ese permiso termina cuando
-          borrás el contenido, salvo por las copias que puedan quedar en
-          respaldos técnicos por un tiempo acotado.
+          compartir un evento en redes o mensajería, incluida la historia de
+          Instagram que arma el botón compartir con la portada del evento. Ese
+          permiso termina cuando borrás el contenido, salvo por las copias que
+          puedan quedar en respaldos técnicos por un tiempo acotado.
+        </p>
+        <p>
+          Tu nombre visible, tu foto de perfil y tu auto principal se muestran
+          a otros usuarios, por ejemplo en el listado de asistentes de un
+          evento. Qué es público y qué no está en la{" "}
+          <Link href="/privacidad">política de privacidad</Link>.
         </p>
 
         <h2>7. Tu cuenta</h2>
@@ -115,7 +157,25 @@ export default function TerminosPage() {
           <Link href="/contacto">contacto y bajas</Link>.
         </p>
 
-        <h2>8. Responsabilidad</h2>
+        <h2>8. Uso indebido</h2>
+        <ul>
+          <li>
+            Nada de bots, scraping o copiar en masa los eventos o los perfiles.
+          </li>
+          <li>
+            Nada de cuentas falsas o duplicadas para inflar asistentes,
+            seguidores o reportes.
+          </li>
+          <li>
+            Gridd no es un lugar para vender autos ni repuestos, ni para mandar
+            publicidad a quienes van a un evento.
+          </li>
+          <li>
+            No intentes entrar a cuentas ajenas ni romper o saturar el servicio.
+          </li>
+        </ul>
+
+        <h2>9. Responsabilidad</h2>
         <p>
           Gridd es un tablón, no un organizador. No verificamos previamente cada
           evento, no controlamos quién asiste y no participamos de lo que ocurra
@@ -132,7 +192,7 @@ export default function TerminosPage() {
           ausencia de errores.
         </p>
 
-        <h2>9. Cambios y ley aplicable</h2>
+        <h2>10. Cambios y ley aplicable</h2>
         <p>
           Podemos actualizar estos términos. Cuando el cambio sea relevante lo
           avisamos en la app; la fecha de arriba siempre dice cuándo fue la
@@ -144,10 +204,16 @@ export default function TerminosPage() {
           cualquier conflicto se resuelve ante sus tribunales.
         </p>
 
-        <h2>10. Contacto</h2>
+        <h2>11. Contacto</h2>
         <p>
-          Dudas, reclamos y bajas:{" "}
-          <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
+          Dudas y bajas:{" "}
+          <a href={`mailto:${site.emails.soporte}`}>{site.emails.soporte}</a>.
+          Reportes y reclamos por moderación:{" "}
+          <a href={`mailto:${site.emails.moderacion}`}>
+            {site.emails.moderacion}
+          </a>
+          . Todas las casillas están en{" "}
+          <Link href="/contacto">contacto</Link>.
         </p>
       </Prose>
     </LegalShell>

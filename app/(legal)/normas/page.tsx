@@ -40,7 +40,7 @@ export default function NormasPage() {
 
         <h2>Qué sí</h2>
         <ul>
-          <li>Junadas, encuentros y exposiciones de autos y motos.</li>
+          <li>Encuentros y exposiciones de autos y motos.</li>
           <li>Rodadas y salidas grupales que respetan las reglas de tránsito.</li>
           <li>
             Tandas, fechas y competencias en autódromos, kartódromos, pistas de
@@ -69,6 +69,59 @@ export default function NormasPage() {
           </li>
         </ul>
 
+        <h2>Fotos y portadas</h2>
+        <p>
+          Vale para la portada de un evento y para tu foto de perfil, que se ve
+          en el listado de asistentes. No se suben:
+        </p>
+        <ul>
+          <li>
+            Contenido sexual, desnudos o fotos +18 (NSFW), aunque sea
+            &ldquo;en joda&rdquo; o esté tapado a medias.
+          </li>
+          <li>Violencia explícita, sangre, accidentes con heridos o gore.</li>
+          <li>Símbolos de odio, armas o drogas.</li>
+          <li>
+            Imágenes que muestren o festejen picadas, quemadas en la calle o
+            maniobras peligrosas, aunque el evento en sí sea legal.
+          </li>
+          <li>
+            Fotos que promuevan tomar alcohol en un evento al que se va
+            manejando.
+          </li>
+          <li>
+            Fotos de personas que se puedan reconocer, si no te dieron permiso,
+            y menos si son menores.
+          </li>
+          <li>
+            Logos, flyers o fotos de otros (un club, una marca, un fotógrafo)
+            sin su permiso.
+          </li>
+        </ul>
+
+        <h2>Perfiles y trato entre usuarios</h2>
+        <ul>
+          <li>
+            Usá tu nombre o tu apodo de la escena. No te hagas pasar por otra
+            persona, un club, una marca o el equipo de Gridd.
+          </li>
+          <li>
+            Nombres o fotos de perfil ofensivos se cambian o se bajan.
+          </li>
+          <li>
+            Nada de acosar, amenazar o escrachar a otro usuario: ni en un
+            evento, ni con su foto, ni con la matrícula de su auto.
+          </li>
+          <li>
+            No publiques datos de otros: teléfono, dirección, matrícula o
+            dónde guarda el auto.
+          </li>
+          <li>
+            El garage es para tus autos. Venderlos o venderle repuestos a la
+            gente que va a los eventos no es para acá.
+          </li>
+        </ul>
+
         <h2>Si sos organizador</h2>
         <ul>
           <li>
@@ -87,8 +140,16 @@ export default function NormasPage() {
         <h2>Qué pasa cuando algo rompe las normas</h2>
         <ul>
           <li>
-            <strong>Primera vez, caso dudoso:</strong> bajamos el evento y te
-            escribimos explicando por qué.
+            <strong>Primera vez, caso dudoso:</strong> bajamos el evento o la
+            foto y te escribimos explicando por qué.
+          </li>
+          <li>
+            <strong>Foto o portada +18, violenta o de odio:</strong> la bajamos
+            sin aviso. Si se repite, la cuenta se bloquea.
+          </li>
+          <li>
+            <strong>Acoso o escrache a otro usuario:</strong> cuenta suspendida
+            mientras lo revisamos.
           </li>
           <li>
             <strong>Picada explícita:</strong> baja inmediata y cuenta
@@ -104,16 +165,20 @@ export default function NormasPage() {
         </ul>
         <p>
           Si te bajamos algo y creés que fue un error, escribinos a{" "}
-          <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>. Lo
+          <a href={`mailto:${site.emails.moderacion}`}>
+            {site.emails.moderacion}
+          </a>
+          . Lo
           mira una persona.
         </p>
 
         <h2>Cómo reportar</h2>
         <p>
-          Cada evento tiene un botón de reporte con motivos predefinidos. Los
-          reportes por picadas y por riesgo a terceros se revisan primero. No
-          hace falta cuenta para reportar y el reporte es anónimo para el
-          organizador.
+          Cada evento y cada perfil tiene un botón de reporte: elegís el motivo
+          (spam, falso, ofensivo u otro) y podés agregar un comentario. Si
+          contás que es una picada o que hay riesgo para terceros, lo revisamos
+          primero. Para reportar hace falta estar con tu cuenta, y quien recibe
+          el reporte no sabe quién lo mandó.
         </p>
         <p>
           El detalle de responsabilidades está en los{" "}
