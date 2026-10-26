@@ -51,11 +51,15 @@ function LandingFooter() {
 
           <div className="col-span-2 flex flex-col gap-3 lg:col-span-1">
             <p className={EYEBROW}>Contacto</p>
-            <a href={`mailto:${site.contactEmail}`} className={LINK}>
-              {site.contactEmail}
+            <a href={`mailto:${site.emails.hola}`} className={LINK}>
+              {site.emails.hola}
             </a>
             <p className="max-w-[16rem] text-sm leading-6 text-muted-foreground">
-              Consultas, bajas o reclamos de moderación. Lo lee una persona.
+              Soporte, bajas, moderación y organizadores tienen su casilla en{" "}
+              <Link href="/contacto" className={LINK}>
+                contacto
+              </Link>
+              . Lo lee una persona.
             </p>
           </div>
         </div>

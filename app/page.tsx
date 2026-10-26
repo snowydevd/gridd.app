@@ -67,7 +67,7 @@ const facts = [
 ] as const
 
 const kinds = [
-  "Junadas",
+  "Encuentros",
   "Rodadas",
   "Cars & Coffee",
   "Expos",
@@ -142,7 +142,7 @@ const organizerSteps = [
 ] as const
 
 const allowed = [
-  "Junadas, encuentros y exposiciones de autos y motos",
+  "Encuentros y exposiciones de autos y motos",
   "Rodadas y salidas grupales que respetan el tránsito",
   "Tandas y fechas en autódromos y predios habilitados",
   "Talleres, charlas, ferias de repuestos y eventos de club",
@@ -235,7 +235,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={160}>
                 <p className="max-w-lg text-base leading-7 text-muted-foreground">
-                  Junadas, rodadas, expos, cars &amp; coffee y fechas de pista.
+                  Encuentros, rodadas, expos, cars &amp; coffee y fechas de pista.
                   Gridd te muestra lo que pasa cerca tuyo, con fecha, lugar y
                   cómo llegar, para que no te enteres por una historia cuando
                   ya terminó.
@@ -682,10 +682,10 @@ export default function Home() {
                 <p className="max-w-sm text-sm leading-7 text-muted-foreground">
                   ¿Te quedó otra duda? Escribinos a{" "}
                   <a
-                    href={`mailto:${site.contactEmail}`}
+                    href={`mailto:${site.emails.soporte}`}
                     className="text-foreground underline underline-offset-4 transition-colors hover:text-brand"
                   >
-                    {site.contactEmail}
+                    {site.emails.soporte}
                   </a>
                   .
                 </p>

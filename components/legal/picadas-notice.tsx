@@ -28,7 +28,7 @@ function PicadasNotice({ className, ...props }: React.ComponentProps<"aside">) {
           Gridd no admite picadas ni carreras en la vía pública.
         </p>
         <p className="text-muted-foreground">
-          Los encuentros, junadas, rodadas y expos son bienvenidos. Competir en
+          Los encuentros, rodadas y expos son bienvenidos. Competir en
           velocidad fuera de un circuito habilitado no, y publicarlo acá termina
           en el evento borrado y la cuenta bloqueada.{" "}
           <Link
