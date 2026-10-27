@@ -13,6 +13,7 @@ const appNav = [
   { href: "#garage", label: "Garage" },
   { href: "#organizadores", label: "Organizadores" },
   { href: "#preguntas", label: "Preguntas" },
+  { href: "/testers", label: "Sumate a la beta" },
 ] as const
 
 const LINK =

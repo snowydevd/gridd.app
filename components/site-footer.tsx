@@ -16,6 +16,12 @@ function SiteFooter() {
               Encuentros fierreros, en un solo lugar. Gridd publica eventos, no
               los organiza.
             </p>
+            <Link
+              href="/testers"
+              className="self-start text-xs font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand focus-visible:text-brand"
+            >
+              Probá la app antes: sumate a la beta
+            </Link>
           </div>
 
           <nav

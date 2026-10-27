@@ -52,6 +52,12 @@ export default async function EventosPage() {
             En Gridd te anotás, guardás el encuentro y te enterás de los que se vienen cerca tuyo.
           </p>
           <StoreButtons />
+          <Link
+            href="/testers"
+            className="self-start text-sm font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand focus-visible:text-brand"
+          >
+            ¿Querés probarla antes? Sumate a la beta →
+          </Link>
         </section>
       </main>
       <SiteFooter />
