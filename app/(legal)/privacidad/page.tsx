@@ -75,6 +75,11 @@ export default function PrivacidadPage() {
             que hacés y cuánta gente suelen juntar.
           </li>
           <li>
+            <strong>Beta de la app:</strong> si te anotás en gridd.app/testers,
+            tu mail y si tenés Android o iPhone, para avisarte cuando puedas
+            probarla.
+          </li>
+          <li>
             <strong>Uso de la app:</strong> métricas agregadas de pantallas
             vistas.
           </li>
@@ -208,6 +213,10 @@ export default function PrivacidadPage() {
           <li>
             Lista de organizadores de gridd.app: hasta el lanzamiento y el
             primer contacto, o hasta que pidas que la borremos.
+          </li>
+          <li>
+            Lista de la beta: hasta que termine la beta, o hasta que pidas que
+            la borremos.
           </li>
           <li>Eventos: hasta que los borres o los bajemos por moderación.</li>
           <li>
