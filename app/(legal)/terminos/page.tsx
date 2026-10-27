@@ -31,6 +31,14 @@ export default function TerminosPage() {
           pasa antes, durante y después.
         </p>
         <p>
+          Gridd es gratis y se sostiene con anuncios de terceros (Google AdMob),
+          marcados como &ldquo;Publicidad&rdquo;. Un anuncio no es un evento ni
+          una recomendación de Gridd, y lo que se compre o contrate a partir de
+          él es entre vos y el anunciante. Cómo funcionan y cómo elegir que no
+          sean personalizados está en la{" "}
+          <Link href="/privacidad">política de privacidad</Link>.
+        </p>
+        <p>
           Usar la app, publicar un evento o crear una cuenta implica aceptar
           estos términos y la{" "}
           <Link href="/privacidad">política de privacidad</Link>.

@@ -76,7 +76,12 @@ export default function PrivacidadPage() {
           </li>
           <li>
             <strong>Uso de la app:</strong> métricas agregadas de pantallas
-            vistas, sin perfilado ni publicidad.
+            vistas.
+          </li>
+          <li>
+            <strong>Anuncios:</strong> la app muestra anuncios de Google AdMob,
+            que usan el identificador de publicidad de tu teléfono. El detalle
+            está en la sección 6.
           </li>
         </ul>
         <p>
@@ -100,6 +105,7 @@ export default function PrivacidadPage() {
           </li>
           <li>Moderar: revisar reportes y bajar lo que rompe las reglas.</li>
           <li>Entender qué se usa y qué no, para mejorarlo.</li>
+          <li>Mostrar anuncios, que es lo que permite que Gridd sea gratis.</li>
         </ul>
 
         <h2>4. Qué es público</h2>
@@ -146,17 +152,55 @@ export default function PrivacidadPage() {
           <li>
             <strong>Google o Apple:</strong> sólo si elegís entrar con ellos.
           </li>
+          <li>
+            <strong>Google AdMob:</strong> los anuncios de la app (ver la
+            sección 6).
+          </li>
         </ul>
         <p>
           Estos proveedores tienen sus servidores fuera de {site.jurisdiction},
           así que tus datos se guardan y procesan en el exterior, con las
-          garantías que piden sus propios términos. Nada de venta ni cesión de
-          datos con fines publicitarios. También podemos entregar información
-          cuando nos la requiera una autoridad competente por la vía que
-          corresponda.
+          garantías que piden sus propios términos. No vendemos tus datos de
+          cuenta, de perfil ni de actividad a nadie, y no se los damos a
+          anunciantes. También podemos entregar información cuando nos la
+          requiera una autoridad competente por la vía que corresponda.
         </p>
 
-        <h2>6. Cuánto tiempo</h2>
+        <h2>6. Anuncios</h2>
+        <p>
+          Gridd es gratis porque la app muestra anuncios de Google AdMob: un
+          banner arriba de algunas pantallas y algunas tarjetas marcadas como
+          &ldquo;Publicidad&rdquo; entre los eventos. No hay anuncios a pantalla
+          completa, ni con video o sonido.
+        </p>
+        <p>
+          Por defecto los anuncios son <strong>personalizados</strong>: Google
+          usa el identificador de publicidad de tu teléfono, datos del
+          dispositivo y tu ubicación aproximada para elegir qué mostrarte. Gridd
+          no le pasa a Google tu mail, tu nombre ni lo que hacés en la app.
+        </p>
+        <p>Si no querés anuncios personalizados:</p>
+        <ul>
+          <li>
+            En la app: Perfil → cuenta → &ldquo;Anuncios personalizados&rdquo;
+            → No. Vas a seguir viendo anuncios, pero no personalizados.
+          </li>
+          <li>
+            En Android: Configuración → Google → Anuncios, donde podés borrar o
+            desactivar el identificador de publicidad.
+          </li>
+        </ul>
+        <p>
+          Si estás en una región donde la ley lo exige, la app te pide el
+          consentimiento la primera vez y podés cambiarlo después desde Perfil.
+          Cómo usa Google estos datos:{" "}
+          <a href="https://policies.google.com/technologies/ads">
+            policies.google.com/technologies/ads
+          </a>
+          .
+        </p>
+
+        <h2>7. Cuánto tiempo</h2>
         <ul>
           <li>
             Datos de cuenta, perfil y actividad: mientras la cuenta exista.
@@ -176,7 +220,7 @@ export default function PrivacidadPage() {
           </li>
         </ul>
 
-        <h2>7. Tus derechos</h2>
+        <h2>8. Tus derechos</h2>
         <p>
           Podés pedir acceso a tus datos, corregirlos, borrarlos u oponerte a
           que los usemos. Se hace escribiendo a{" "}
@@ -189,21 +233,22 @@ export default function PrivacidadPage() {
           <Link href="/contacto">contacto</Link>.
         </p>
 
-        <h2>8. Cookies</h2>
+        <h2>9. Cookies</h2>
         <p>
           Este sitio no usa cookies de sesión: la cuenta vive en la app, que
-          guarda la sesión en tu teléfono. Las métricas de uso, si las hay, son
-          anónimas y agregadas: no te siguen entre sitios ni apps.
+          guarda la sesión en tu teléfono. Las métricas de uso del sitio, si las
+          hay, son anónimas y agregadas: no te siguen entre sitios ni apps. Los
+          anuncios de la app se explican en la sección 6.
         </p>
 
-        <h2>9. Menores</h2>
+        <h2>10. Menores</h2>
         <p>
           Gridd no está pensado para menores de 18 años y no pedimos datos a
           sabiendas de que lo son. Si detectamos una cuenta de un menor, la
           damos de baja.
         </p>
 
-        <h2>10. Cambios</h2>
+        <h2>11. Cambios</h2>
         <p>
           Si cambiamos esta política actualizamos la fecha de arriba y, cuando
           el cambio sea relevante, lo avisamos en la app.

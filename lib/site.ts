@@ -27,5 +27,5 @@ export const site = {
   /** Jurisdicción declarada en términos y privacidad. */
   jurisdiction: "Uruguay",
   /** Última revisión de los textos legales. Actualizar al cambiarlos. */
-  legalUpdatedAt: "26 de octubre de 2026",
+  legalUpdatedAt: "27 de octubre de 2026",
 } as const
