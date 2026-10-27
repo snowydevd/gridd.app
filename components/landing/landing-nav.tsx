@@ -5,6 +5,7 @@ import { CONTAINER } from "@/components/landing/section"
 import { cn } from "@/lib/utils"
 
 const links = [
+  { href: "/eventos", label: "Eventos" },
   { href: "#funciones", label: "Funciones" },
   { href: "#como-funciona", label: "Cómo funciona" },
   { href: "#garage", label: "Garage" },

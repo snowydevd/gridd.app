@@ -59,6 +59,30 @@ export type GriddEvent = {
 /** Un evento por slug, o `null`. `cache` evita pedirlo dos veces (metadata + página). */
 export const getEvent = cache((slug: string) => query<GriddEvent | null>("events:getBySlug", { slug }))
 
+type Page<T> = { page: T[]; isDone: boolean; continueCursor: string }
+
+/**
+ * Próximos encuentros publicados (los que no terminaron), del más cercano al más lejano, hasta `max`.
+ * Usa `events.listUpcoming`, la misma consulta que la lista de la app. Devuelve también el `now` de
+ * la consulta, para que los filtros "Hoy" / "Este finde" usen el mismo instante.
+ */
+export async function listUpcomingEvents(max = 100): Promise<{ events: GriddEvent[]; now: number }> {
+  // `now` fijo para todas las páginas: si cambiara, los cursores dejarían de valer.
+  const now = Date.now()
+  const events: GriddEvent[] = []
+  let cursor: string | null = null
+  while (events.length < max) {
+    const result: Page<GriddEvent> = await query("events:listUpcoming", {
+      paginationOpts: { numItems: Math.min(50, max - events.length), cursor },
+      now,
+    })
+    events.push(...result.page)
+    if (result.isDone) break
+    cursor = result.continueCursor
+  }
+  return { events, now }
+}
+
 /** Las mismas etiquetas que la app (mobile/src/services/events.ts). */
 export const KIND_LABELS: Record<string, string> = {
   junada: "Encuentro",
