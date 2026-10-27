@@ -243,6 +243,13 @@ export default function Home() {
               </Reveal>
               <Reveal delay={240}>
                 <StoreButtons />
+                {/* Sin la app (por ejemplo, en iPhone) igual se pueden ver los encuentros. */}
+                <Link
+                  href="/eventos"
+                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline underline-offset-4 outline-none transition-colors hover:text-brand focus-visible:text-brand"
+                >
+                  Ver los próximos encuentros en la web →
+                </Link>
               </Reveal>
               <Reveal delay={320}>
                 <dl className="grid grid-cols-2 gap-y-5 border-t border-border pt-6 sm:grid-cols-4">

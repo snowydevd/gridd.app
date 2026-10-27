@@ -7,6 +7,7 @@ import { site } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
 const appNav = [
+  { href: "/eventos", label: "Próximos encuentros" },
   { href: "#funciones", label: "Funciones" },
   { href: "#como-funciona", label: "Cómo funciona" },
   { href: "#garage", label: "Garage" },
