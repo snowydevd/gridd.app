@@ -2,7 +2,7 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["APPLE_TEAM_ID.com.gridd.app"],
+        "appIDs": ["APPLE_TEAM_ID.app.gridd"],
         "components": [{ "/": "/e/*", "comment": "Eventos compartidos desde la app" }]
       }
     ]
