@@ -1,0 +1,468 @@
+{
+  "version": 1,
+  "pedido": "necesito conectar mi backend de convex para autenticacion. mostrar eventos. anotarse a eventos, etc.\nla parte de mostrar eventos ya esta. pero debo agregar la autenticacion de usuarios y manejo de organizers",
+  "titulo": "Sesión de usuarios y organizadores con Convex",
+  "panorama": "Seguís con el patrón que ya tenés: Convex por HTTP desde el server, sin SDK. El login guarda el token en una cookie httpOnly, `lib/convex.ts` lo manda como `Authorization: Bearer`, y con eso armás anotarse a un evento y un panel solo para organizadores.\n\nOjo: no pude leer `mobile/convex` (sin permiso), así que asumí Convex Auth con provider `password`. Los nombres `auth:signIn`, `users:viewer`, `rsvps:mine` y `rsvps:toggle` son supuestos: confirmalos contra tu backend antes de escribirlos.\n\nQueda afuera: renovar el token con el refresh token (el JWT dura poco) y actualizar `/privacidad`, que hoy dice que el sitio no usa cookies de sesión.",
+  "pasoActual": 4,
+  "terminada": false,
+  "pasos": [
+    {
+      "id": 1,
+      "tipo": "codigo",
+      "titulo": "Mandar el token a Convex",
+      "archivo": "lib/convex.ts",
+      "donde": "En la función `call` (firma, URL y headers) y en los helpers `query` / `mutation` de más abajo.",
+      "ancla": {
+        "linea": 8,
+        "texto": "async function call<T>(kind: \"query\" | \"mutation\", path: string, args: Record<string, unknown>): Promise<T> {"
+      },
+      "objetivo": "Hacé que `call` acepte un token opcional y, si viene, lo mande en el header `Authorization`. Sumá el kind `\"action\"` y exportá `query` y un helper `action`, todos con el token como tercer parámetro opcional.",
+      "conceptos": [
+        {
+          "nombre": "Auth en la API HTTP de Convex",
+          "explicacion": "Las funciones de Convex saben quién llama por el header `Authorization: Bearer <token>`. Sin header, la llamada es anónima, que es lo que hacés hoy.",
+          "docs": "https://docs.convex.dev/http-api/"
+        },
+        {
+          "nombre": "action",
+          "explicacion": "El tercer tipo de función de Convex, para cosas con efectos externos. El login de Convex Auth es una action, y se llama en `/api/action`.",
+          "docs": "https://docs.convex.dev/functions/actions"
+        }
+      ],
+      "criterios": [
+        "`call` recibe un parámetro opcional de token (string u opcional/undefined).",
+        "El tipo de `kind` incluye \"action\" además de \"query\" y \"mutation\".",
+        "El header `Authorization` con formato `Bearer <token>` se agrega solo cuando hay token; sin token no se manda el header.",
+        "Existe un helper `action` exportado, y `query` y `mutation` aceptan y reenvían el token opcional. `query` queda exportado.",
+        "Las llamadas existentes (`getEvent`, `listUpcomingEvents`, `mutation` desde las actions) siguen compilando sin cambios.",
+        "Se mantiene `cache: \"no-store\"` y el manejo de errores con `ConvexCallError`."
+      ],
+      "pistas": [
+        "Empezá por la firma de `call`: agregale un cuarto parámetro opcional. Todo lo demás sale de ahí.",
+        "El objeto `headers` se puede armar condicionalmente con spread: `...(token ? { ... } : {})`. La URL ya usa `kind`, así que \"action\" funciona solo con ampliar el tipo.",
+        "1) Ampliá el union de `kind`. 2) Sumá `token?: string` a `call`. 3) Agregá `Authorization` solo si hay token. 4) Hacé que `query` y `mutation` reciban `token?` y lo pasen. 5) Copiá uno de esos helpers para `action` y exportá los tres."
+      ],
+      "hecho": true,
+      "nivelPista": 0,
+      "ultimaRevision": {
+        "aprobado": true,
+        "mensaje": "Cumple todo: `call` recibe `authToken` opcional, el `Authorization: Bearer` se agrega solo si hay token, y `query`, `mutation` y `action` quedan exportados y lo reenvían. Las llamadas existentes no cambian porque el parámetro va último y es opcional.",
+        "problemas": [],
+        "sugerencias": [
+          "lib/convex.ts:8 — la firma de `call` quedó muy larga; partila en una línea por parámetro para que se lea mejor.",
+          "lib/convex.ts:10 — quedó un `;` suelto; el resto del archivo no usa punto y coma."
+        ]
+      },
+      "ultimaPregunta": {
+        "pregunta": "headers: { \n      \"Content-Type\": \"application/json\",\n      {\n        (authToken ? ...{\n          \"Authorization\": authToken\n        } : {})\n      }\n    },",
+        "respuesta": "La idea (spread condicional) está bien, la sintaxis no: eso no compila.\n\n- Sobran las `{ }` de afuera: adentro de un objeto literal no podés meter otro objeto suelto sin clave.\n- El `...` va **afuera** del paréntesis, no adentro del ternario: se spreadea el resultado de la condición entera.\n\nForma genérica, con otro ejemplo: `const user = { name, ...(age ? { age } : {}) }`. Docs: [spread en objetos literales](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Operators/Spread_syntax#expandir_en_literales_de_objetos).\n\nOtra cosa: Convex no acepta el token pelado en `Authorization`, espera el esquema `Bearer ` adelante. Mirá [HTTP API de Convex](https://docs.convex.dev/http-api/).\n\nLa firma de `call` ya está bien. Te falta pasar el token en `query` / `mutation` (línea 46-47), exportar `query` y sumar `action`."
+      }
+    },
+    {
+      "id": 2,
+      "tipo": "crear-archivo",
+      "titulo": "Crear archivo",
+      "archivo": "lib/session.ts",
+      "donde": "lib",
+      "objetivo": "Crear el archivo vacío lib/session.ts",
+      "conceptos": [],
+      "criterios": [],
+      "pistas": [],
+      "hecho": true,
+      "nivelPista": 0
+    },
+    {
+      "id": 3,
+      "tipo": "codigo",
+      "titulo": "Guardar la sesión en una cookie",
+      "archivo": "lib/session.ts",
+      "donde": "Archivo nuevo: imports arriba, después tres funciones exportadas.",
+      "objetivo": "Escribí tres funciones async: `saveSession(token)` guarda el token en una cookie, `getToken()` lo devuelve (o `undefined`) y `clearSession()` la borra.",
+      "conceptos": [
+        {
+          "nombre": "cookies() de Next",
+          "explicacion": "Función async de `next/headers` para leer y escribir cookies en el server. Escribir solo se puede desde una Server Action o un Route Handler, no al renderizar una página.",
+          "docs": "https://nextjs.org/docs/app/api-reference/functions/cookies"
+        },
+        {
+          "nombre": "Cookie httpOnly",
+          "explicacion": "Una cookie que el JavaScript del navegador no puede leer. El token queda fuera del alcance de un script malicioso, y como Convex lo llamás desde el server, el cliente nunca lo necesita.",
+          "docs": "https://developer.mozilla.org/es/docs/Web/HTTP/Guides/Cookies"
+        }
+      ],
+      "criterios": [
+        "Importa `cookies` de `next/headers` y la llama con `await`.",
+        "El nombre de la cookie está en una constante, no repetido como string suelto.",
+        "`saveSession` setea la cookie con `httpOnly: true`, `sameSite: \"lax\"`, `path: \"/\"` y `secure` (true, o condicionado a producción).",
+        "La cookie tiene `maxAge` o `expires`.",
+        "`getToken` devuelve el valor o `undefined` si no existe.",
+        "`clearSession` borra la cookie.",
+        "Las tres funciones están exportadas y son async. El archivo no tiene `\"use client\"`."
+      ],
+      "pistas": [
+        "`cookies()` devuelve una promesa: primero `await`, después usás el store.",
+        "El store tiene `.get(nombre)`, `.set(nombre, valor, opciones)` y `.delete(nombre)`. Las opciones de seguridad van en el tercer argumento de `set`.",
+        "1) Constante con el nombre de la cookie. 2) `saveSession`: await del store y `set` con httpOnly, secure, sameSite lax, path raíz y un maxAge. 3) `getToken`: `get` y devolvés `.value` con optional chaining. 4) `clearSession`: `delete`."
+      ],
+      "hecho": true,
+      "nivelPista": 0,
+      "ultimaRevision": {
+        "aprobado": true,
+        "mensaje": "Cumple todo: `cookies()` con `await`, nombre en `COOKIE_NAME`, y la cookie sale con `httpOnly`, `sameSite: \"lax\"`, `path: \"/\"`, `secure` en producción y `maxAge` de 1 día. `getToken` devuelve `undefined` si no hay cookie gracias al `?.value`.",
+        "problemas": [],
+        "sugerencias": [
+          "El `maxAge` de 24 h tiene que coincidir con lo que dura el token en el backend de Convex: si el token vive más, el usuario se desloguea antes de tiempo; si vive menos, queda una cookie con un token vencido.",
+          "Sacá `60 * 60 * 24` a una constante con nombre (como hiciste con `COOKIE_NAME`) para que se lea qué duración es.",
+          "Agregá `import \"server-only\"` arriba de todo: si alguien importa este archivo desde un componente cliente, el build falla en vez de romper en runtime."
+        ]
+      },
+      "ultimaPregunta": {
+        "pregunta": "que valor deberia tener maxAge y expires?",
+        "respuesta": "Usá uno solo, no los dos: `maxAge`. Va en **segundos** desde ahora (ej. un día es `60 * 60 * 24`). `expires` es lo mismo pero con un `Date` absoluto, y si ponés ambos gana `maxAge`.\n\nEl valor tiene que coincidir con lo que dura el JWT que emite tu backend. En Convex Auth el default es 1 hora, salvo que lo hayas cambiado con `jwt.durationMs` en `mobile/convex/auth.ts` (ojo: eso está en milisegundos, la cookie en segundos). Confirmalo ahí, yo no pude leer esa carpeta.\n\nSi le ponés más (una semana, por ejemplo), la cookie sigue viva con un token vencido: Convex lo rechaza y el usuario parece logueado sin estarlo. Por eso, hasta que no hagas el refresh del token, que quede igual a la duración del JWT.\n\nGuardalo en una constante al lado de `COOKIE_NAME`, así no queda un número suelto.\n\nDocs: [opciones de cookies() en Next](https://nextjs.org/docs/app/api-reference/functions/cookies#options) y [Max-Age en MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#max-agenumber)."
+      }
+    },
+    {
+      "id": 4,
+      "tipo": "crear-archivo",
+      "titulo": "Crear archivo",
+      "archivo": "app/ingresar/actions.ts",
+      "donde": "app/ingresar",
+      "objetivo": "Crear el archivo vacío app/ingresar/actions.ts",
+      "conceptos": [],
+      "criterios": [],
+      "pistas": [],
+      "hecho": true,
+      "nivelPista": 0
+    },
+    {
+      "id": 5,
+      "tipo": "codigo",
+      "titulo": "Crear las actions de login y logout",
+      "archivo": "app/ingresar/actions.ts",
+      "donde": "Archivo nuevo. Seguí la forma de `app/testers/actions.ts`: `\"use server\"`, tipo de resultado y funciones exportadas.",
+      "objetivo": "Escribí `signIn({ email, password })`, que llama a la action de login de Convex, guarda el token con `saveSession` y devuelve `{ ok: true }` o `{ ok: false, message }`. Y `signOut()`, que borra la sesión y redirige a `/`.",
+      "conceptos": [
+        {
+          "nombre": "Login de Convex Auth por HTTP",
+          "explicacion": "Convex Auth expone la action `auth:signIn`, que recibe `{ provider, params }` y devuelve los tokens. Es lo que el SDK llama por debajo; acá la llamás vos con tu helper `action`. Confirmá en `mobile/convex/auth.ts` qué provider usás.",
+          "docs": "https://labs.convex.dev/auth"
+        },
+        {
+          "nombre": "redirect",
+          "explicacion": "Función de `next/navigation` que corta la ejecución y manda al usuario a otra ruta. Funciona tirando una excepción, así que va fuera de un `try/catch`.",
+          "docs": "https://nextjs.org/docs/app/api-reference/functions/redirect"
+        }
+      ],
+      "criterios": [
+        "El archivo empieza con `\"use server\"`.",
+        "`signIn` valida que `email` y `password` sean strings antes de llamar a Convex, como hacen las otras actions.",
+        "Llama a la action de login con el helper `action` de `@/lib/convex`, pasando provider y params (email, password, flow de sign in).",
+        "Si la respuesta trae token, llama a `saveSession`; si no trae, devuelve `{ ok: false, message }`.",
+        "Los errores se manejan como en `joinTesters`: `ConvexCallError` con `data.message` se muestra, el resto se loguea con `console.error` y devuelve mensaje genérico. Para credenciales inválidas hay un mensaje entendible en español.",
+        "`signOut` llama a `clearSession` y después a `redirect`, y el `redirect` no está dentro de un `try`.",
+        "El token nunca se devuelve al cliente en el resultado de la action."
+      ],
+      "pistas": [
+        "Abrí `app/testers/actions.ts` al lado: la estructura es la misma, cambia qué llamás y qué hacés con la respuesta.",
+        "La action devuelve algo con forma `{ tokens: { token, refreshToken } | null }`. Tipá eso en el genérico de `action<...>` y quedate con `tokens.token`.",
+        "1) Tipo `SignInResult` igual a `JoinTestersResult`. 2) Chequeo de forma del input. 3) `try`: llamás a `auth:signIn` con provider `password` y params con `flow: \"signIn\"`. 4) Sin tokens: error. Con tokens: `saveSession` y `{ ok: true }`. 5) `catch` copiado del patrón existente. 6) `signOut`: `clearSession` y `redirect(\"/\")`."
+      ],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 6,
+      "tipo": "crear-archivo",
+      "titulo": "Crear archivo",
+      "archivo": "components/auth/sign-in-form.tsx",
+      "donde": "components/auth",
+      "objetivo": "Crear el archivo vacío components/auth/sign-in-form.tsx",
+      "conceptos": [],
+      "criterios": [],
+      "pistas": [],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 7,
+      "tipo": "codigo",
+      "titulo": "Armar el formulario de ingreso",
+      "archivo": "components/auth/sign-in-form.tsx",
+      "donde": "Archivo nuevo. Componente cliente `SignInForm`, con la misma estructura que `components/testers/testers-form.tsx`.",
+      "objetivo": "Escribí un formulario con mail y contraseña que llame a `signIn` y, si sale bien, navegue a la ruta que reciba por la prop `next` (por defecto `/eventos`). Si falla, mostrá el mensaje.",
+      "conceptos": [
+        {
+          "nombre": "useRouter",
+          "explicacion": "Hook de `next/navigation` para navegar desde un componente cliente. Lo usás acá porque la navegación depende del resultado de la action.",
+          "docs": "https://nextjs.org/docs/app/api-reference/functions/use-router"
+        }
+      ],
+      "criterios": [
+        "Tiene `\"use client\"` e importa `signIn` de `@/app/ingresar/actions`.",
+        "Usa `useState` para email, password y error, y `useTransition` para el estado pendiente, como `TestersForm`.",
+        "El submit hace `preventDefault`, no envía si faltan datos o hay un envío en curso, y limpia el error antes de enviar.",
+        "Si `result.ok`, navega con el router a `next` y llama a `router.refresh()` o equivalente; si no, setea el error.",
+        "El input de contraseña es `type=\"password\"` con `autoComplete=\"current-password\"`; el de mail es `type=\"email\"` con `autoComplete=\"email\"`.",
+        "Cada input tiene `label` asociado con `htmlFor` / `id`.",
+        "El error se muestra con `role=\"alert\"` y el botón se deshabilita mientras está pendiente.",
+        "Reutiliza las clases de Tailwind del formulario existente (inputs `h-14 rounded-2xl`, botón `bg-brand`)."
+      ],
+      "pistas": [
+        "Copiá mentalmente `TestersForm` y sacale lo que sobra: plataforma, consentimiento y la pantalla de \"listo\".",
+        "`useRouter()` te da `push` y `refresh`. El `refresh` hace que los Server Components vuelvan a leer la cookie nueva.",
+        "1) Estados: email, password, error. 2) `useTransition`. 3) `submit`: guardas, limpiás error, `startTransition` con `await signIn(...)`. 4) ok: `router.push(next)` y `router.refresh()`. No ok: `setError`. 5) JSX: form con dos campos, el párrafo de error y el botón."
+      ],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 8,
+      "tipo": "crear-archivo",
+      "titulo": "Crear archivo",
+      "archivo": "app/ingresar/page.tsx",
+      "donde": "app/ingresar",
+      "objetivo": "Crear el archivo vacío app/ingresar/page.tsx",
+      "conceptos": [],
+      "criterios": [],
+      "pistas": [],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 9,
+      "tipo": "codigo",
+      "titulo": "Crear la página /ingresar",
+      "archivo": "app/ingresar/page.tsx",
+      "donde": "Archivo nuevo. Server Component con `metadata` y el layout de `app/eventos/page.tsx` (header con Wordmark, `main`, `SiteFooter`).",
+      "objetivo": "Escribí la página que muestra `SignInForm`. Si ya hay sesión, redirigí en vez de mostrar el formulario. Leé `next` de los search params y pasáselo al form, validando que sea una ruta interna.",
+      "conceptos": [
+        {
+          "nombre": "searchParams",
+          "explicacion": "Prop de las páginas con los parámetros de la URL (`?next=/e/algo`). En esta versión de Next es una promesa: hay que hacerle `await`.",
+          "docs": "https://nextjs.org/docs/app/api-reference/file-conventions/page"
+        }
+      ],
+      "criterios": [
+        "Exporta `metadata` usando `pageMetadata` de `@/lib/seo` con `path: \"/ingresar\"`.",
+        "El componente es async y hace `await` de `searchParams`.",
+        "Llama a `getToken()` y, si hay token, hace `redirect`.",
+        "`next` solo se acepta si es un string que empieza con `/` y no con `//`; si no, usa el default. Esto evita un open redirect.",
+        "Renderiza `SignInForm` pasándole `next`.",
+        "Usa `PageHeader` y `SiteFooter` como las otras páginas."
+      ],
+      "pistas": [
+        "Mirá cómo `app/e/[slug]/page.tsx` tipa sus props con `PageProps<\"/e/[slug]\">`: acá es lo mismo con tu ruta.",
+        "Leer la cookie hace la página dinámica sola, no necesitás `force-dynamic`. Para validar `next` alcanza con `startsWith`.",
+        "1) `metadata`. 2) Función async con `searchParams`. 3) `await getToken()` y `redirect` si existe. 4) Sacás `next` de los params y lo validás. 5) Devolvés el layout de `/eventos` con `PageHeader` y `<SignInForm next={...} />`."
+      ],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 10,
+      "tipo": "codigo",
+      "titulo": "Pedir el usuario actual",
+      "archivo": "lib/convex.ts",
+      "donde": "Debajo de `getEvent`: un tipo nuevo y una función exportada.",
+      "ancla": {
+        "linea": 60,
+        "texto": "export const getEvent = cache((slug: string) => query<GriddEvent | null>(\"events:getBySlug\", { slug }))"
+      },
+      "objetivo": "Definí el tipo `Viewer` con lo que la web necesita del usuario (id, nombre, imagen y si es organizador) y escribí `getViewer(token)`, que devuelve el usuario o `null`. Envolvela en `cache` como `getEvent`.",
+      "conceptos": [
+        {
+          "nombre": "Identidad dentro de una función de Convex",
+          "explicacion": "Con el header `Authorization`, el backend resuelve el usuario con `ctx.auth`. Por eso no mandás ningún id: la query devuelve los datos de quien llama, y `null` si el token no sirve.",
+          "docs": "https://docs.convex.dev/auth/functions-auth"
+        }
+      ],
+      "criterios": [
+        "Existe un tipo `Viewer` exportado con al menos `_id`, nombre, imagen y un campo que indique si es organizador (boolean o role).",
+        "`getViewer` recibe el token, llama a una query de Convex pasando el token como tercer argumento y devuelve `Viewer | null`.",
+        "Está envuelta en `cache` de React.",
+        "No se manda ningún userId en los args: la identidad viaja solo en el token.",
+        "Si no hay token, devuelve `null` sin llamar a Convex (acá o en quien la llama, pero el caso está cubierto).",
+        "Tiene un comentario indicando de qué función de `mobile/convex` sale la forma, como `GriddEvent`."
+      ],
+      "pistas": [
+        "Primero buscá en `mobile/convex` qué query usa la app para \"mi perfil\" y qué devuelve. El tipo sale de ahí.",
+        "Es `getEvent` con otro path y con el token en el tercer argumento de `query`. `cache` deduplica por argumento, así que el token sirve de clave.",
+        "1) `export type Viewer` con los campos que vas a mostrar más el de organizador. 2) `export const getViewer = cache((token?: string) => ...)`. 3) Adentro: sin token, `null`; con token, `query<Viewer | null>` al path de tu backend, args vacíos, token al final."
+      ],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 11,
+      "tipo": "crear-archivo",
+      "titulo": "Crear archivo",
+      "archivo": "app/e/[slug]/actions.ts",
+      "donde": "app/e/[slug]",
+      "objetivo": "Crear el archivo vacío app/e/[slug]/actions.ts",
+      "conceptos": [],
+      "criterios": [],
+      "pistas": [],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 12,
+      "tipo": "codigo",
+      "titulo": "Crear la action para anotarse",
+      "archivo": "app/e/[slug]/actions.ts",
+      "donde": "Archivo nuevo, con `\"use server\"` y la misma forma que las otras actions.",
+      "objetivo": "Escribí `toggleAttendance({ eventId, slug })`: lee el token, llama a la mutation de anotarse en Convex con ese token y refresca la página del evento. Sin sesión, devolvé un resultado que el cliente pueda distinguir para mandar a `/ingresar`.",
+      "conceptos": [
+        {
+          "nombre": "revalidatePath",
+          "explicacion": "Le avisa a Next que una ruta tiene datos nuevos y debe volver a renderizarse. Así el contador de anotados se actualiza sin recargar a mano.",
+          "docs": "https://nextjs.org/docs/app/api-reference/functions/revalidatePath"
+        }
+      ],
+      "criterios": [
+        "Empieza con `\"use server\"`.",
+        "Lee el token con `getToken()` adentro de la action; no lo recibe como argumento desde el cliente.",
+        "Sin token devuelve un resultado distinguible (por ejemplo `{ ok: false, reason: \"auth\" }`) y no llama a Convex.",
+        "Llama a `mutation` con el id del evento en args y el token como tercer argumento.",
+        "Tras el éxito llama a `revalidatePath` con la ruta del evento.",
+        "Maneja errores con el patrón `ConvexCallError` + `console.error` + mensaje genérico.",
+        "No acepta ni manda un userId desde el cliente."
+      ],
+      "pistas": [
+        "Una Server Action es un endpoint público: cualquiera puede llamarla con cualquier argumento. Por eso el token se lee de la cookie y no del input.",
+        "Tipá el resultado como un union de tres casos: ok, falta sesión, error con mensaje. El cliente decide qué hacer con cada uno.",
+        "1) Tipo `AttendResult`. 2) Chequeo de forma de `eventId` y `slug`. 3) `getToken()`; sin token, devolvés el caso de auth. 4) `try`: `mutation` al path de tu backend con el token. 5) `revalidatePath` de `/e/<slug>` y ok. 6) `catch` del patrón existente."
+      ],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 13,
+      "tipo": "crear-archivo",
+      "titulo": "Crear archivo",
+      "archivo": "components/events/attend-button.tsx",
+      "donde": "components/events",
+      "objetivo": "Crear el archivo vacío components/events/attend-button.tsx",
+      "conceptos": [],
+      "criterios": [],
+      "pistas": [],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 14,
+      "tipo": "codigo",
+      "titulo": "Armar el botón de anotarse",
+      "archivo": "components/events/attend-button.tsx",
+      "donde": "Archivo nuevo. Componente cliente `AttendButton` con props `eventId`, `slug` y `attending`.",
+      "objetivo": "Escribí un botón que llame a `toggleAttendance` y cambie el texto según `attending` (\"Anotarme\" / \"Ya estoy anotado\"). Si la action responde que falta sesión, mandá a `/ingresar?next=/e/<slug>`.",
+      "conceptos": [
+        {
+          "nombre": "useTransition con Server Actions",
+          "explicacion": "Ya lo usás en `TestersForm`: te da `pending` mientras corre la action sin bloquear la UI. Acá sirve para deshabilitar el botón y evitar doble click.",
+          "docs": "https://react.dev/reference/react/useTransition"
+        }
+      ],
+      "criterios": [
+        "Tiene `\"use client\"` e importa `toggleAttendance` de `@/app/e/[slug]/actions`.",
+        "Recibe `eventId`, `slug` y `attending` por props; `attending` no se guarda en estado local desincronizado (se confía en la prop que llega tras revalidar).",
+        "Usa `useTransition` y deshabilita el botón mientras `pending`.",
+        "Si el resultado indica falta de sesión, navega a `/ingresar` con `next` apuntando al evento.",
+        "Si hay error con mensaje, lo muestra con `role=\"alert\"`.",
+        "Usa `aria-pressed` o un texto que refleje el estado, y las clases de botón del proyecto (`bg-brand`, `focus-visible:ring`)."
+      ],
+      "pistas": [
+        "Es `TestersForm` reducido a un botón: un estado de error, un transition y un handler.",
+        "No necesitás `useState` para `attending`: la action hace `revalidatePath` y el server te manda la prop actualizada.",
+        "1) Props tipadas. 2) `useTransition`, `useRouter`, estado de error. 3) Handler: `startTransition` con `await toggleAttendance(...)`. 4) Tres ramas: ok no hace nada, auth hace `router.push` a ingresar, error hace `setError`. 5) JSX: botón con texto según `attending` y `pending`, y el párrafo de error."
+      ],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 15,
+      "tipo": "codigo",
+      "titulo": "Mostrar el botón en el evento",
+      "archivo": "app/e/[slug]/page.tsx",
+      "donde": "En `EventPage`: pedí los datos de sesión después de `getEvent`, y renderizá el botón arriba de la sección \"Anotate desde la app\".",
+      "ancla": {
+        "linea": 159,
+        "texto": "        <section className=\"flex flex-col gap-4 rounded-3xl border border-border bg-card p-6\">"
+      },
+      "objetivo": "Leé el token en la página, averiguá si el usuario ya está anotado a este evento y renderizá `AttendButton` con ese dato. No lo muestres si el evento está cancelado o ya terminó.",
+      "conceptos": [
+        {
+          "nombre": "Server Component que lee la sesión",
+          "explicacion": "La página corre en el server, así que puede leer la cookie y pedirle a Convex datos del usuario antes de mandar el HTML. El cliente recibe solo el resultado (`attending`), nunca el token.",
+          "docs": "https://nextjs.org/docs/app/guides/authentication"
+        }
+      ],
+      "criterios": [
+        "Importa `getToken` de `@/lib/session` y `AttendButton`.",
+        "Llama a `getToken()` dentro de `EventPage`, después de comprobar que el evento existe.",
+        "Con token, consulta a Convex si el usuario está anotado (query autenticada con el id del evento); sin token, `attending` es `false` y no se hace la consulta.",
+        "Renderiza `AttendButton` con `eventId={event._id}`, `slug` y `attending`.",
+        "El botón no se renderiza si `cancelled` o `ended` son true.",
+        "El token no se pasa como prop a ningún componente cliente.",
+        "`generateMetadata` no cambia."
+      ],
+      "pistas": [
+        "Ya tenés `cancelled` y `ended` calculados arriba: usalos para decidir si el botón aparece.",
+        "Para saber si está anotado necesitás una query autenticada del backend (fijate cómo lo resuelve la app en `mobile/convex`). Podés sumar un helper en `lib/convex.ts` o llamar a `query` directo con el token.",
+        "1) `const token = await getToken()`. 2) `attending`: si hay token, el resultado de la query; si no, `false`. 3) En el JSX, arriba de la sección de la app: `{!cancelled && !ended && <AttendButton ... />}`."
+      ],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 16,
+      "tipo": "crear-archivo",
+      "titulo": "Crear archivo",
+      "archivo": "app/organizadores/panel/page.tsx",
+      "donde": "app/organizadores/panel",
+      "objetivo": "Crear el archivo vacío app/organizadores/panel/page.tsx",
+      "conceptos": [],
+      "criterios": [],
+      "pistas": [],
+      "hecho": false,
+      "nivelPista": 0
+    },
+    {
+      "id": 17,
+      "tipo": "codigo",
+      "titulo": "Proteger el panel de organizadores",
+      "archivo": "app/organizadores/panel/page.tsx",
+      "donde": "Archivo nuevo. Server Component con el layout de `/eventos`; las comprobaciones van al principio de la función, antes del `return`.",
+      "objetivo": "Escribí una página que solo vea un organizador: sin sesión redirige a `/ingresar?next=/organizadores/panel`, y con sesión pero sin ser organizador redirige a `/organizadores`. Por ahora mostrá el nombre del organizador y un botón de cerrar sesión.",
+      "conceptos": [
+        {
+          "nombre": "Autorización en la página",
+          "explicacion": "Chequear el rol al renderizar decide qué se ve, pero no protege los datos. La regla de verdad vive en las funciones de Convex, que tienen que validar el rol en cada mutation de organizador.",
+          "docs": "https://nextjs.org/docs/app/guides/authentication#authorization"
+        },
+        {
+          "nombre": "Server Action en un form",
+          "explicacion": "Le pasás la action a `<form action={signOut}>` y el botón de submit la ejecuta. No necesita JavaScript en el cliente ni un componente `\"use client\"`.",
+          "docs": "https://nextjs.org/docs/app/getting-started/updating-data"
+        }
+      ],
+      "criterios": [
+        "Es un Server Component async, sin `\"use client\"`.",
+        "Llama a `getToken()` y después a `getViewer(token)`.",
+        "Sin token o sin viewer, hace `redirect` a `/ingresar` con `next=/organizadores/panel`.",
+        "Con viewer que no es organizador, hace `redirect` a otra ruta (por ejemplo `/organizadores`).",
+        "Los `redirect` no están dentro de un `try/catch`.",
+        "Muestra el nombre del viewer y un `<form action={signOut}>` con botón de submit.",
+        "Exporta `metadata` con `robots: { index: false }` o equivalente, para que el panel no se indexe.",
+        "No se confía en datos del cliente para decidir el rol."
+      ],
+      "pistas": [
+        "El orden importa: primero resolvés quién es, después qué puede ver, y recién ahí renderizás.",
+        "`getViewer` ya devuelve `null` con un token vencido, así que \"no hay token\" y \"no hay viewer\" son el mismo caso. `signOut` la importás de `@/app/ingresar/actions`.",
+        "1) `metadata` sin indexar. 2) `getToken()` y `getViewer(token)`. 3) Sin viewer: `redirect` a ingresar con `next`. 4) No organizador: `redirect` a `/organizadores`. 5) Layout de `/eventos` con `PageHeader`, el nombre y el form de `signOut`."
+      ],
+      "hecho": false,
+      "nivelPista": 0
+    }
+  ]
+}

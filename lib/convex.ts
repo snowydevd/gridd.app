@@ -5,16 +5,23 @@ import { cache } from "react"
  * de funciones públicas, del lado del server.
  * `CONVEX_URL` es la URL del deployment (https://<nombre>.convex.cloud).
  */
-async function call<T>(kind: "query" | "mutation", path: string, args: Record<string, unknown>): Promise<T> {
+async function call<T>(kind: "query" | "mutation" | "action", path: string, args: Record<string, unknown>, authToken?: string): Promise<T> {
   const url = process.env.CONVEX_URL
-  if (!url) throw new Error("Falta CONVEX_URL.")
+  if (!url) throw new Error("Falta CONVEX_URL.");
+
   const res = await fetch(`${url}/api/${kind}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      ...(authToken ? {
+        "Authorization": `Bearer ${authToken}`
+      } : {})
+    },
     body: JSON.stringify({ path, args, format: "json" }),
     // Un evento cambia (anotados, cancelado): siempre el dato fresco.
     cache: "no-store",
   })
+
   const body = (await res.json().catch(() => null)) as
     | { status: "success"; value: T }
     | { status: "error"; errorMessage: string; errorData?: { code?: string; message?: string } }
@@ -34,8 +41,9 @@ export class ConvexCallError extends Error {
   }
 }
 
-const query = <T>(path: string, args: Record<string, unknown>) => call<T>("query", path, args)
-export const mutation = <T>(path: string, args: Record<string, unknown>) => call<T>("mutation", path, args)
+export const query = <T>(path: string, args: Record<string, unknown>, authToken?: string) => call<T>("query", path, args, authToken)
+export const mutation = <T>(path: string, args: Record<string, unknown>, authToken?: string) => call<T>("mutation", path, args, authToken)
+export const action = <T>(path: string, args: Record<string, unknown>, authToken?: string) => call<T>("action", path, args, authToken)
 
 /** La forma de `events.getBySlug` (mobile/convex/lib/eventView.ts), con lo que usa la web. */
 export type GriddEvent = {
