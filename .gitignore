@@ -58,3 +58,6 @@ next-env.d.ts
 
 # sesiones de brainstorming de superpowers
 /.superpowers
+
+# want-to-learn (guías de aprendizaje locales)
+.want-to-learn/
