@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
-import { Wordmark } from "@/components/brand/wordmark"
 import { EventsBrowser } from "@/components/events/events-browser"
 import { StoreButtons } from "@/components/landing/store-buttons"
 import { PageHeader } from "@/components/page-header"
 import { SiteFooter } from "@/components/site-footer"
+import { SiteHeader } from "@/components/site-header"
 import { listUpcomingEvents } from "@/lib/convex"
 import { pageMetadata } from "@/lib/seo"
 
@@ -25,23 +25,13 @@ export default async function EventosPage() {
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
-        <div className="flex h-14 items-center px-5 sm:px-8 lg:px-12">
-          <Link
-            href="/"
-            aria-label="Gridd — inicio"
-            className="rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-          >
-            <Wordmark className="h-3.5 text-foreground" />
-          </Link>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-5 pt-8 pb-16 sm:px-8">
         <PageHeader
           eyebrow="Encuentros"
           title="Próximos encuentros"
-          description="Tocá uno para ver dónde es, a qué hora y cómo llegar."
+          description="Tocá uno para ver los detalles y anotarte, o la flecha para ver cómo llegar."
         />
 
         <EventsBrowser events={events} now={now} />

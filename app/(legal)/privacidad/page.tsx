@@ -244,8 +244,10 @@ export default function PrivacidadPage() {
 
         <h2>9. Cookies</h2>
         <p>
-          Este sitio no usa cookies de sesión: la cuenta vive en la app, que
-          guarda la sesión en tu teléfono. Las métricas de uso del sitio, si las
+          Si entrás a tu cuenta desde este sitio, guardamos tu sesión en dos
+          cookies propias, sólo para mantenerte conectado: no las lee nadie más
+          y se borran al cerrar sesión o a los 30 días sin uso. Si no entrás,
+          el sitio no usa cookies de sesión. Las métricas de uso del sitio, si las
           hay, son anónimas y agregadas: no te siguen entre sitios ni apps. Los
           anuncios de la app se explican en la sección 6.
         </p>

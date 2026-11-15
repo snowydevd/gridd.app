@@ -2,10 +2,11 @@ import type { MetadataRoute } from "next"
 
 import { site } from "@/lib/site"
 
-/** Sitemap (GRI-22): la landing, la lista de encuentros y las páginas legales. */
+/** Sitemap (GRI-22): Inicio (los encuentros), la lista completa, la landing y las páginas legales. */
 const staticRoutes = [
-  { path: "/", changeFrequency: "weekly", priority: 1 },
+  { path: "/", changeFrequency: "daily", priority: 1 },
   { path: "/eventos", changeFrequency: "daily", priority: 0.9 },
+  { path: "/nosotros", changeFrequency: "weekly", priority: 0.8 },
   { path: "/testers", changeFrequency: "monthly", priority: 0.6 },
   { path: "/normas", changeFrequency: "yearly", priority: 0.4 },
   { path: "/terminos", changeFrequency: "yearly", priority: 0.3 },

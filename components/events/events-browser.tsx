@@ -1,18 +1,13 @@
 "use client"
 
-import Link from "next/link"
 import { useMemo, useState } from "react"
-import { Calendar03Icon, Location01Icon, Search01Icon } from "@hugeicons/core-free-icons"
+import { Search01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
-import { Wordmark } from "@/components/brand/wordmark"
+import { EventRow } from "@/components/events/event-row"
 import { KIND_LABELS, type GriddEvent } from "@/lib/convex"
 import { filterEvents, type When } from "@/lib/event-filters"
 import { cn } from "@/lib/utils"
-
-const TZ = "America/Montevideo"
-const dayFmt = new Intl.DateTimeFormat("es-UY", { weekday: "short", day: "numeric", month: "short", timeZone: TZ })
-const timeFmt = new Intl.DateTimeFormat("es-UY", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: TZ })
 
 const WHEN: { value: When; label: string }[] = [
   { value: "all", label: "Todos" },
@@ -94,44 +89,6 @@ export function EventsBrowser({ events, now }: { events: GriddEvent[]; now: numb
         </ul>
       )}
     </div>
-  )
-}
-
-function EventRow({ event }: { event: GriddEvent }) {
-  const day = dayFmt.format(event.startsAt).replace(/\./g, "")
-  const time = timeFmt.format(event.startsAt)
-  return (
-    <Link
-      href={`/e/${event.slug}`}
-      className="group flex items-center gap-4 rounded-3xl border border-border bg-card p-3 pr-5 transition-colors outline-none hover:bg-input/30 focus-visible:ring-[3px] focus-visible:ring-ring/50"
-    >
-      <div className="size-20 shrink-0 overflow-hidden rounded-2xl bg-muted sm:size-24">
-        {event.imageUrl ? (
-          // Viene del storage de Convex: no pasa por el optimizador de imágenes.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={event.imageUrl} alt="" loading="lazy" className="size-full object-cover" />
-        ) : (
-          <div className="flex size-full items-center justify-center">
-            <Wordmark className="h-3 text-muted-foreground" mono />
-          </div>
-        )}
-      </div>
-      <div className="flex min-w-0 flex-col gap-1">
-        <span className="text-[0.68rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
-          {KIND_LABELS[event.kind] ?? "Encuentro"}
-          {event.status === "cancelled" && <span className="text-destructive"> · Cancelado</span>}
-        </span>
-        <span className="truncate font-medium group-hover:underline">{event.title}</span>
-        <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <HugeiconsIcon icon={Calendar03Icon} strokeWidth={1.8} aria-hidden className="size-3.5 shrink-0" />
-          <span className="capitalize">{day}</span> · {time} hs
-        </span>
-        <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <HugeiconsIcon icon={Location01Icon} strokeWidth={1.8} aria-hidden className="size-3.5 shrink-0" />
-          <span className="truncate">{event.placeName}</span>
-        </span>
-      </div>
-    </Link>
   )
 }
 

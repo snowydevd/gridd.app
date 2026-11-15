@@ -5,21 +5,31 @@ import { cache } from "react"
  * de funciones públicas, del lado del server.
  * `CONVEX_URL` es la URL del deployment (https://<nombre>.convex.cloud).
  */
-async function call<T>(kind: "query" | "mutation", path: string, args: Record<string, unknown>): Promise<T> {
+async function call<T>(kind: "query" | "mutation" | "action", path: string, args: Record<string, unknown>, authToken?: string): Promise<T> {
   const url = process.env.CONVEX_URL
-  if (!url) throw new Error("Falta CONVEX_URL.")
+  if (!url) throw new Error("Falta CONVEX_URL.");
+
   const res = await fetch(`${url}/api/${kind}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      ...(authToken ? {
+        "Authorization": `Bearer ${authToken}`
+      } : {})
+    },
     body: JSON.stringify({ path, args, format: "json" }),
     // Un evento cambia (anotados, cancelado): siempre el dato fresco.
     cache: "no-store",
   })
+
   const body = (await res.json().catch(() => null)) as
     | { status: "success"; value: T }
     | { status: "error"; errorMessage: string; errorData?: { code?: string; message?: string } }
+    // Un header de auth inválido (token roto o vencido) vuelve sin `status`, con `{ code, message }`.
+    | { status?: undefined; code: string; message: string }
     | null
   if (!body) throw new Error(`Convex respondió ${res.status} en ${path}.`)
+  if (body.status === undefined) throw new ConvexCallError(`${body.code}: ${body.message}`)
   if (body.status !== "success") throw new ConvexCallError(body.errorMessage, body.errorData)
   return body.value
 }
@@ -34,8 +44,9 @@ export class ConvexCallError extends Error {
   }
 }
 
-const query = <T>(path: string, args: Record<string, unknown>) => call<T>("query", path, args)
-export const mutation = <T>(path: string, args: Record<string, unknown>) => call<T>("mutation", path, args)
+export const query = <T>(path: string, args: Record<string, unknown>, authToken?: string) => call<T>("query", path, args, authToken)
+export const mutation = <T>(path: string, args: Record<string, unknown>, authToken?: string) => call<T>("mutation", path, args, authToken)
+export const action = <T>(path: string, args: Record<string, unknown>, authToken?: string) => call<T>("action", path, args, authToken)
 
 /** La forma de `events.getBySlug` (mobile/convex/lib/eventView.ts), con lo que usa la web. */
 export type GriddEvent = {
@@ -58,6 +69,57 @@ export type GriddEvent = {
 
 /** Un evento por slug, o `null`. `cache` evita pedirlo dos veces (metadata + página). */
 export const getEvent = cache((slug: string) => query<GriddEvent | null>("events:getBySlug", { slug }))
+
+/** Lo mismo, como el usuario de la sesión: el organizador ve también su evento oculto. */
+export const getEventAs = cache(async (slug: string, token: string) => {
+  try {
+    return await query<GriddEvent | null>("events:getBySlug", { slug }, token)
+  } catch (error) {
+    // Si Convex rechaza el token, la ficha igual se ve: como anónimo.
+    if (error instanceof ConvexCallError) return getEvent(slug)
+    throw error
+  }
+})
+
+export type Role = "user" | "publisher" | "admin"
+
+/** La forma de `users.me` (mobile/convex/users.ts). */
+export type Viewer = {
+  _id: string
+  name: string | null
+  email: string | null
+  image: string | null
+  /** Foto subida por el usuario (no la del login social): se puede quitar. */
+  hasAvatar: boolean
+  hasPassword: boolean
+  role: Role
+  /** Categorías que le gustan, para ordenar "Para vos" en Inicio. */
+  interests: string[]
+}
+
+/** Publisher o admin: puede publicar eventos (`requirePublisher` en mobile/convex/lib/auth.ts). */
+export const isPublisher = (viewer: Viewer) => viewer.role === "publisher" || viewer.role === "admin"
+
+/** El usuario de la sesión, o `null`. Sin token ni se consulta. La identidad viaja sólo en el token. */
+export const getViewer = cache(async (token: string | undefined): Promise<Viewer | null> => {
+  if (!token) return null
+  try {
+    return await query<Viewer | null>("users:me", {}, token)
+  } catch (error) {
+    // Un token que Convex rechaza (firma vieja, sesión borrada) es lo mismo que no tener sesión.
+    if (error instanceof ConvexCallError) return null
+    throw error
+  }
+})
+
+/** La forma de `publisherRequests.mine`: la última solicitud para organizar, o `null`. */
+export type PublisherRequest = {
+  _id: string
+  _creationTime: number
+  message: string
+  status: "pending" | "approved" | "rejected"
+  reviewedAt?: number
+} | null
 
 type Page<T> = { page: T[]; isDone: boolean; continueCursor: string }
 
