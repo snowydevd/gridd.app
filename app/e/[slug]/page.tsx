@@ -1,18 +1,16 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { notFound } from "next/navigation"
-import {
-  Calendar03Icon,
-  Location01Icon,
-  Navigation03Icon,
-  UserGroupIcon,
-} from "@hugeicons/core-free-icons"
+import { Calendar03Icon, Location01Icon, UserGroupIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import { Wordmark } from "@/components/brand/wordmark"
+import { EventActions } from "@/components/events/event-actions"
 import { StoreButtons } from "@/components/landing/store-buttons"
 import { SiteFooter } from "@/components/site-footer"
-import { getEvent, KIND_LABELS, type GriddEvent } from "@/lib/convex"
+import { SiteHeader } from "@/components/site-header"
+import { getEvent, getEventAs, getViewer, KIND_LABELS, query, type GriddEvent } from "@/lib/convex"
+import { embedUrl } from "@/lib/maps"
+import { pageToken } from "@/lib/session"
 import { site } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
@@ -59,34 +57,35 @@ export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Prom
 
 export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
   const { slug } = await params
-  const event = await getEvent(slug)
+  const token = await pageToken(`/e/${slug}`)
+  // Con sesión se pide como el usuario: el organizador ve también su evento oculto.
+  const event = token ? await getEventAs(slug, token) : await getEvent(slug)
   if (!event) notFound()
+
+  const [viewer, attending] = token
+    ? await Promise.all([
+        getViewer(token),
+        query<boolean>("attendance:isAttending", { eventId: event._id }, token).catch(() => false),
+      ])
+    : [null, false]
 
   const { day, hours, ended } = when(event)
   const cancelled = event.status === "cancelled"
-  const directions = `https://www.google.com/maps/search/?api=1&query=${event.lat},${event.lon}`
+  const isOpen = event.status === "published" && !ended
+  const isOrganizer = !!viewer && event.organizer?._id === viewer._id
   const organizer = event.organizer?.name ?? "Organizador"
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
-        <div className="flex h-14 items-center justify-between px-5 sm:px-8 lg:px-12">
-          <Link
-            href="/"
-            aria-label="Gridd — inicio"
-            className="rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-          >
-            <Wordmark className="h-3.5 text-foreground" />
-          </Link>
-          {/* Si el link no abrió la app sola (p. ej. desde el navegador de Instagram), esto la abre. */}
-          <a
-            href={`gridd://event/${slug}`}
-            className="rounded-4xl bg-brand px-4 py-2 text-sm font-medium text-brand-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-brand/40"
-          >
-            Abrir en la app
-          </a>
-        </div>
-      </header>
+      <SiteHeader>
+        {/* Si el link no abrió la app sola (p. ej. desde el navegador de Instagram), esto la abre. */}
+        <a
+          href={`gridd://event/${slug}`}
+          className="rounded-4xl bg-brand px-4 py-2 text-sm font-medium whitespace-nowrap text-brand-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-brand/40"
+        >
+          Abrir <span className="hidden sm:inline">en la </span>app
+        </a>
+      </SiteHeader>
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-5 pt-6 pb-16 sm:px-8">
         <div className="relative aspect-[16/10] overflow-hidden rounded-3xl border border-border bg-muted">
@@ -124,18 +123,29 @@ export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
 
         <div className="divide-y divide-border rounded-3xl border border-border bg-card px-5">
           <Fact icon={Calendar03Icon} title={day} subtitle={hours} />
-          <Fact icon={Location01Icon} title={event.placeName}>
-            <a
-              href={directions}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-brand outline-none hover:underline focus-visible:underline"
-            >
-              <HugeiconsIcon icon={Navigation03Icon} strokeWidth={1.8} aria-hidden className="size-4" />
-              Cómo llegar
-            </a>
-          </Fact>
+          <Fact icon={Location01Icon} title={event.placeName} />
         </div>
+
+        <EventActions
+          eventId={event._id}
+          slug={slug}
+          lat={event.lat}
+          lon={event.lon}
+          attending={attending}
+          attendeeCount={event.attendeeCount}
+          isOpen={isOpen}
+          cancelled={cancelled}
+          isOrganizer={isOrganizer}
+        />
+
+        {/* El mapa del lugar, como en la ficha de la app. Sin API key: es el embed público de Google. */}
+        <iframe
+          title={`Mapa: ${event.placeName}`}
+          src={embedUrl(event.lat, event.lon)}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          className="aspect-[16/9] w-full rounded-3xl border border-border bg-muted"
+        />
 
         {event.description && (
           <p className="text-base leading-7 whitespace-pre-line text-muted-foreground">{event.description}</p>
@@ -157,9 +167,9 @@ export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
         </div>
 
         <section className="flex flex-col gap-4 rounded-3xl border border-border bg-card p-6">
-          <h2 className="text-xl tracking-[-0.01em]">Anotate desde la app</h2>
+          <h2 className="text-xl tracking-[-0.01em]">Llevalo en la app</h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            En Gridd te anotás, guardás el encuentro y te enterás de los que se vienen cerca tuyo.
+            En Gridd guardás el encuentro, lo sumás al calendario y te enterás de los que se vienen cerca tuyo.
           </p>
           <StoreButtons />
         </section>

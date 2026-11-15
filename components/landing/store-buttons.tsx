@@ -11,6 +11,7 @@ const stores = [
     icon: AndroidIcon,
     eyebrow: "Descargala en",
     name: "Google Play",
+    android: true,
     // Android manda con holgura en Uruguay: es el que va en flúor.
     primary: true,
   },
@@ -19,15 +20,18 @@ const stores = [
     icon: AppleIcon,
     eyebrow: "Descargala en",
     name: "App Store",
+    android: false,
     primary: false,
   },
 ] as const
 
-function StoreButtons({ className }: { className?: string }) {
+/** `androidOnly` deja sólo Google Play (en `/nosotros` no se promete la app de iPhone). */
+function StoreButtons({ className, androidOnly = false }: { className?: string; androidOnly?: boolean }) {
+  const shown = androidOnly ? stores.filter((store) => store.android) : stores
   return (
     <div className={cn("flex flex-col gap-3", className)}>
       <div className="flex flex-wrap gap-3">
-        {stores.map((store) => (
+        {shown.map((store) => (
           <Link
             key={store.name}
             href={store.href}
@@ -60,7 +64,7 @@ function StoreButtons({ className }: { className?: string }) {
         ))}
       </div>
       <p className="text-[0.68rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
-        Muy pronto en Google Play y App Store.
+        {androidOnly ? "Muy pronto en Google Play." : "Muy pronto en Google Play y App Store."}
       </p>
     </div>
   )

@@ -17,6 +17,12 @@ function SiteFooter() {
               los organiza.
             </p>
             <Link
+              href="/nosotros"
+              className="self-start text-xs font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand focus-visible:text-brand"
+            >
+              Qué es Gridd
+            </Link>
+            <Link
               href="/testers"
               className="self-start text-xs font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand focus-visible:text-brand"
             >

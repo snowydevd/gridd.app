@@ -3,6 +3,8 @@ import { Chivo, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
+import { InlineScript } from "@/components/inline-script";
+import { INTRO_SCRIPT } from "@/components/landing/intro-script";
 
 // Las mismas fuentes que la app mobile: Chivo para títulos, Hanken Grotesk para el resto.
 const chivo = Chivo({
@@ -53,7 +55,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // `suppressHydrationWarning` porque el script inline de la landing agrega
+    // `suppressHydrationWarning` porque el script inline de la landing (/nosotros) agrega
     // `.js-anim` al <html> mientras el browser parsea, antes de que React
     // hidrate. Sin esto React ve el `class` cambiado y tira mismatch.
     <html
@@ -61,6 +63,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("dark h-full antialiased", chivo.variable, hanken.variable)}
       suppressHydrationWarning
     >
+      <head>
+        <InlineScript html={INTRO_SCRIPT} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
