@@ -15,14 +15,7 @@ const stores = [
     // Android manda con holgura en Uruguay: es el que va en flúor.
     primary: true,
   },
-  {
-    href: "#descargar",
-    icon: AppleIcon,
-    eyebrow: "Descargala en",
-    name: "App Store",
-    android: false,
-    primary: false,
-  },
+ 
 ] as const
 
 /** `androidOnly` deja sólo Google Play (en `/nosotros` no se promete la app de iPhone). */
