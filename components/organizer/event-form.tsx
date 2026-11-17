@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState, useTransition } from "react"
-import { ArrowLeft01Icon, ArrowRight01Icon, Edit02Icon, Image01Icon } from "@hugeicons/core-free-icons"
+import { ArrowLeft01Icon, ArrowRight01Icon, Cancel01Icon, Edit02Icon, Image01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import {
@@ -13,6 +13,7 @@ import {
   type EventFormInput,
 } from "@/app/organizadores/panel/actions"
 import { Wordmark } from "@/components/brand/wordmark"
+import { iconButtonClass } from "@/components/app/ui"
 import { PlacePicker } from "@/components/organizer/place-picker"
 import type { ActionResult } from "@/lib/authed"
 import { KIND_LABELS, type GriddEvent } from "@/lib/convex"
@@ -199,13 +200,13 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <button type="button" onClick={back} className={cn(ui.link, "inline-flex items-center gap-1")}>
-            <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} aria-hidden className="size-4" />
-            {isFirst ? "Volver" : "Atrás"}
+          <button type="button" onClick={back} aria-label={isFirst ? "Cerrar" : "Atrás"} className={iconButtonClass()}>
+            <HugeiconsIcon icon={isFirst ? Cancel01Icon : ArrowLeft01Icon} strokeWidth={2} aria-hidden className="size-5" />
           </button>
-          <span className="text-[0.72rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
+          <span className="text-[11px] font-semibold tracking-[1.2px] text-muted-foreground uppercase">
             {step < REVIEW ? `Paso ${step + 1} de ${STEPS.length}` : "Revisión"}
           </span>
+          <span className="w-11" />
         </div>
         <div className="flex gap-1.5" aria-hidden>
           {STEPS.map((s, i) => (
@@ -270,7 +271,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
                 min={today}
                 value={day}
                 onChange={(e) => setDay(e.target.value)}
-                className={cn(ui.input, "[color-scheme:dark]")}
+                className={cn(ui.input)}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -283,7 +284,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
                   type="time"
                   value={start}
                   onChange={(e) => setStart(e.target.value)}
-                  className={cn(ui.input, "[color-scheme:dark]")}
+                  className={cn(ui.input)}
                 />
               </div>
               {!noEndTime && (
@@ -296,7 +297,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
                     type="time"
                     value={end}
                     onChange={(e) => setEnd(e.target.value)}
-                    className={cn(ui.input, "[color-scheme:dark]")}
+                    className={cn(ui.input)}
                   />
                 </div>
               )}
@@ -456,7 +457,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
                         href={placeUrl(coords.lat, coords.lon)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="self-start text-sm font-medium text-brand hover:underline"
+                        className="self-start text-sm font-medium text-brand-text hover:underline"
                       >
                         Revisar el punto en Google Maps →
                       </a>
@@ -476,7 +477,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
               onClick={() => fileInput.current?.click()}
               aria-label={coverSrc ? "Cambiar portada" : "Subir portada"}
               className={cn(
-                "relative flex aspect-[16/10] w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-3xl bg-card outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                "relative flex aspect-[16/10] w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-[16px] bg-card outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
                 !coverSrc && "border-2 border-dashed border-border"
               )}
             >
@@ -541,7 +542,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
         {step === REVIEW && (
           <>
             <StepTitle>{initial ? "Revisá los cambios" : "Revisá tu evento"}</StepTitle>
-            <div className="relative flex h-80 flex-col justify-end overflow-hidden rounded-3xl bg-card">
+            <div className="relative flex h-80 flex-col justify-end overflow-hidden rounded-[16px] bg-card">
               {coverSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={coverSrc} alt="" className="absolute inset-0 size-full object-cover" />
@@ -609,5 +610,5 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
 }
 
 function StepTitle({ children }: { children: React.ReactNode }) {
-  return <h1 className="text-[2rem] leading-[1.05] tracking-[-0.02em] uppercase">{children}</h1>
+  return <h1 className="text-[32px] leading-[34px] tracking-[-0.4px] uppercase">{children}</h1>
 }

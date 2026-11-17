@@ -47,7 +47,7 @@ export function WaitlistForm({ kinds, instagram }: { kinds: { value: string; lab
   if (done) {
     return (
       <div className="flex flex-1 flex-col justify-center gap-4 py-10">
-        <span className="text-xs font-semibold tracking-[0.14em] text-brand uppercase">Anotado</span>
+        <span className="text-xs font-semibold tracking-[0.14em] text-brand-text uppercase">Anotado</span>
         <h1 className="text-[2rem] leading-[1.05] tracking-[-0.02em] uppercase">¡Listo!</h1>
         <p className="text-base leading-7 text-muted-foreground">
           Te vamos a escribir por Instagram apenas la app esté publicada, para que seas de los primeros en publicar

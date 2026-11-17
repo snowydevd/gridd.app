@@ -1,10 +1,11 @@
 "use server"
 
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
 import { authErrorMessage, validateCredentials, type PasswordFlow } from "@/lib/auth-errors"
 import { action, ConvexCallError } from "@/lib/convex"
-import { clearSession, getToken, saveSession, type Tokens } from "@/lib/session"
+import { clearSession, getToken, OAUTH_VERIFIER_COOKIE, safeNext, saveSession, type Tokens } from "@/lib/session"
 
 export type AuthResult = { ok: true } | { ok: false; message: string }
 
@@ -89,4 +90,31 @@ export async function signOut() {
   }
   await clearSession()
   redirect("/")
+}
+
+/**
+ * "Continuar con Google": arranca el OAuth de Convex Auth (`auth:signIn` con el provider `google`) y
+ * devuelve la URL a la que tiene que ir el navegador. Google vuelve a Convex y Convex a
+ * `/sesion/google`, que termina de entrar. `SITE_URL` del deployment tiene que ser este sitio.
+ */
+export async function startGoogleSignIn(input: { next: string }): Promise<AuthResult & { url?: string }> {
+  const next = safeNext(input?.next, "/")
+  try {
+    const result = await action<{ redirect?: string; verifier?: string }>("auth:signIn", {
+      provider: "google",
+      params: { redirectTo: `/sesion/google?next=${encodeURIComponent(next)}` },
+    })
+    if (!result.redirect || !result.verifier) return { ok: false, message: "No pudimos conectar con Google. Probá de nuevo en un rato." }
+    ;(await cookies()).set(OAUTH_VERIFIER_COOKIE, result.verifier, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 10 * 60,
+    })
+    return { ok: true, url: result.redirect }
+  } catch (error) {
+    console.error("[auth] google falló:", error)
+    return { ok: false, message: "No pudimos conectar con Google. Probá de nuevo en un rato." }
+  }
 }
