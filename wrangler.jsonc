@@ -8,7 +8,10 @@
 	// Deployment de Convex del que lee la web (lib/convex.ts). Es público: la app usa la misma URL.
 	// Por ahora todo vive en el de desarrollo; cambiarlo al de producción cuando exista.
 	"vars": {
-		"CONVEX_URL": "https://clean-rabbit-734.convex.cloud"
+		"CONVEX_URL": "https://clean-rabbit-734.convex.cloud",
+		// Key de navegador de Google Maps (mapa, ficha y publicar). Es pública: viaja en el HTML; la
+		// protege la restricción por dominio (gridd.app) en Google Cloud. No es la key de Android.
+		"GOOGLE_MAPS_API_KEY": "AIzaSyC79f-1utpig3cv4UB5Nj3L8H9u3D9Geec"
 	},
 	"observability": {
 		"enabled": true
