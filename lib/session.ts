@@ -15,6 +15,9 @@ const SESSION_MAX_AGE = 60 * 60 * 24 * 30
 /** Un token que vence en menos de esto ya se renueva: no vale la pena mandarlo a Convex. */
 const EXPIRY_MARGIN_MS = 60 * 1000
 
+/** Cookie con el `verifier` de OAuth entre la ida a Google y la vuelta (la app guarda el suyo en SecureStore). */
+export const OAUTH_VERIFIER_COOKIE = "GRIDD_OAUTH_VERIFIER"
+
 export type Tokens = { token: string; refreshToken: string }
 
 const cookieOptions = {

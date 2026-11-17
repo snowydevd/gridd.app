@@ -179,7 +179,8 @@ const CARD = "rounded-3xl border border-border bg-card"
 
 export default function Home() {
   return (
-    <>
+    // La landing es oscura en los dos temas: está diseñada sobre asfalto.
+    <div data-theme="dark" className="flex min-h-full flex-1 flex-col bg-background text-foreground">
       <LandingNav />
 
       <main className="relative flex flex-1 flex-col">
@@ -737,6 +738,6 @@ export default function Home() {
       </main>
 
       <LandingFooter />
-    </>
+    </div>
   )
 }

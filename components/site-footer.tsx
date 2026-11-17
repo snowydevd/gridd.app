@@ -18,13 +18,13 @@ function SiteFooter() {
             </p>
             <Link
               href="/nosotros"
-              className="self-start text-xs font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand focus-visible:text-brand"
+              className="self-start text-xs font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand-text focus-visible:text-brand-text"
             >
               Qué es Gridd
             </Link>
             <Link
               href="/testers"
-              className="self-start text-xs font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand focus-visible:text-brand"
+              className="self-start text-xs font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand-text focus-visible:text-brand-text"
             >
               Probá la app antes: sumate a la beta
             </Link>

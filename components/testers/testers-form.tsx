@@ -35,7 +35,7 @@ export function TestersForm({ instagram }: { instagram: string }) {
   if (done) {
     return (
       <div className="flex flex-col gap-4 py-6">
-        <span className="text-xs font-semibold tracking-[0.14em] text-brand uppercase">Anotado</span>
+        <span className="text-xs font-semibold tracking-[0.14em] text-brand-text uppercase">Anotado</span>
         <h2 className="text-[2rem] leading-[1.05] tracking-[-0.02em] uppercase">¡Listo!</h2>
         <p className="text-base leading-7 text-muted-foreground">
           {platform === "android"

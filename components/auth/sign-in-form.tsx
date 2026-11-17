@@ -31,11 +31,21 @@ const COPY: Record<PasswordFlow, { title: string; subtitle: string; submit: stri
 }
 
 /** Email + contraseña, con los mismos cuatro flujos que la pantalla de email de la app. */
-export function SignInForm({ next, initialMode = "signIn" }: { next: string; initialMode?: PasswordFlow }) {
+export function SignInForm({
+  next,
+  initialMode = "signIn",
+  changeEmail,
+}: {
+  next: string
+  initialMode?: PasswordFlow
+  /** "Cambiar contraseña" desde Cuenta: el mismo flujo de recuperar, con el email de la cuenta fijo. */
+  changeEmail?: string
+}) {
   const router = useRouter()
-  const [mode, setMode] = useState<PasswordFlow>(initialMode)
+  const changing = !!changeEmail
+  const [mode, setMode] = useState<PasswordFlow>(changing ? "reset" : initialMode)
   const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState(changeEmail ?? "")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [code, setCode] = useState("")
@@ -100,12 +110,12 @@ export function SignInForm({ next, initialMode = "signIn" }: { next: string; ini
     })
   }
 
-  const copy = COPY[mode]
+  const copy = changing && mode === "reset" ? { ...COPY.reset, title: "Cambiar contraseña" } : COPY[mode]
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-[2rem] leading-[1.05] tracking-[-0.02em] uppercase">{copy.title}</h1>
+        <h1 className="text-[32px] leading-[34px] tracking-[-0.4px] uppercase">{copy.title}</h1>
         <p className="text-base leading-7 text-muted-foreground">{copy.subtitle}</p>
       </div>
 
@@ -138,7 +148,7 @@ export function SignInForm({ next, initialMode = "signIn" }: { next: string; ini
             spellCheck={false}
             value={email}
             onChange={edit(setEmail)}
-            disabled={mode === "reset-verification"}
+            disabled={changing || mode === "reset-verification"}
             placeholder="vos@gmail.com"
             className={ui.input}
           />
@@ -211,7 +221,7 @@ export function SignInForm({ next, initialMode = "signIn" }: { next: string; ini
         )}
 
         {notice && (
-          <p role="status" className="text-sm text-brand">
+          <p role="status" className="text-sm text-brand-text">
             {notice}
           </p>
         )}
@@ -235,7 +245,7 @@ export function SignInForm({ next, initialMode = "signIn" }: { next: string; ini
         )}
         {mode === "signUp" && <ModeLink onClick={() => switchMode("signIn")}>¿Ya tenés cuenta? Entrá</ModeLink>}
         {mode === "reset-verification" && <ModeLink onClick={() => switchMode("reset")}>Reenviar código</ModeLink>}
-        {(mode === "reset" || mode === "reset-verification") && (
+        {!changing && (mode === "reset" || mode === "reset-verification") && (
           <ModeLink onClick={() => switchMode("signIn")}>Volver a entrar</ModeLink>
         )}
       </div>

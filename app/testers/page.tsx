@@ -30,7 +30,7 @@ export default function TestersPage() {
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-5 pt-6 pb-16">
         <div className="flex flex-col gap-4">
-          <span className="text-xs font-semibold tracking-[0.14em] text-brand uppercase">Beta</span>
+          <span className="text-xs font-semibold tracking-[0.14em] text-brand-text uppercase">Beta</span>
           <h1 className="text-[clamp(2rem,8vw,2.75rem)] leading-[1.02] tracking-[-0.02em] uppercase">
             Probá Gridd antes que nadie
           </h1>

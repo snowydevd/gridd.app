@@ -113,7 +113,7 @@ export default function ContactoPage() {
                 href={`mailto:${channel.email}?subject=${encodeURIComponent(
                   `[${channel.subject}] `
                 )}`}
-                className="flex flex-col gap-1 font-mono text-xs tracking-[0.04em] text-foreground underline underline-offset-4 hover:text-brand"
+                className="flex flex-col gap-1 font-mono text-xs tracking-[0.04em] text-foreground underline underline-offset-4 hover:text-brand-text"
               >
                 <span>{channel.email}</span>
                 <span className="text-muted-foreground">

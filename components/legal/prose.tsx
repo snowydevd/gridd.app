@@ -14,7 +14,7 @@ function Prose({ className, ...props }: React.ComponentProps<"div">) {
         "[&>p]:mb-4 [&>ul]:mb-4 [&>ul]:flex [&>ul]:flex-col [&>ul]:gap-2 [&>ul]:pl-5",
         "[&_li]:list-disc [&_li]:marker:text-muted-foreground/40",
         "[&_strong]:font-medium [&_strong]:text-foreground",
-        "[&_a]:text-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-brand",
+        "[&_a]:text-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-brand-text",
         className
       )}
       {...props}
