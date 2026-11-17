@@ -45,6 +45,7 @@ export function WhenLine({ event, now, className }: { event: GriddEvent; now: nu
         {when.day} · {when.time}
       </span>
       {event.status === "cancelled" && <span className={cn(text.overline, "text-destructive")}>· Cancelado</span>}
+      {event.status === "hidden" && <span className={cn(text.overline, "text-destructive")}>· Oculto por moderación</span>}
     </span>
   )
 }

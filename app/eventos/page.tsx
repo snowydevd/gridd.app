@@ -1,13 +1,11 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 
-import { EventsBrowser } from "@/components/events/events-browser"
-import { StoreButtons } from "@/components/landing/store-buttons"
-import { PageHeader } from "@/components/page-header"
-import { SiteFooter } from "@/components/site-footer"
-import { SiteHeader } from "@/components/site-header"
-import { listUpcomingEvents } from "@/lib/convex"
+import { EventsList } from "@/components/app/events-list"
+import { ScreenHeader } from "@/components/app/ui"
+import { getViewer, listUpcomingEvents } from "@/lib/convex"
+import { DEFAULT_SEARCH_RADIUS } from "@/lib/search-radius"
 import { pageMetadata } from "@/lib/seo"
+import { pageToken } from "@/lib/session"
 
 export const metadata: Metadata = pageMetadata({
   title: "Próximos encuentros",
@@ -16,41 +14,17 @@ export const metadata: Metadata = pageMetadata({
   path: "/eventos",
 })
 
-// Lista pública de próximos encuentros, para quien no tiene la app (por ejemplo, en iPhone).
 // Se pide en cada visita: un evento puede cancelarse o sumarse en cualquier momento.
 export const dynamic = "force-dynamic"
 
+/** Todos los próximos encuentros por fecha, con filtro por categoría ("Ver todo" de Inicio). */
 export default async function EventosPage() {
-  const { events, now } = await listUpcomingEvents()
-
+  const token = await pageToken("/eventos")
+  const [{ events, now }, viewer] = await Promise.all([listUpcomingEvents(), getViewer(token)])
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <SiteHeader />
-
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-5 pt-8 pb-16 sm:px-8">
-        <PageHeader
-          eyebrow="Encuentros"
-          title="Próximos encuentros"
-          description="Tocá uno para ver los detalles y anotarte, o la flecha para ver cómo llegar."
-        />
-
-        <EventsBrowser events={events} now={now} />
-
-        <section className="flex flex-col gap-4 rounded-3xl border border-border bg-card p-6">
-          <h2 className="text-xl tracking-[-0.01em]">Anotate desde la app</h2>
-          <p className="text-sm leading-6 text-muted-foreground">
-            En Gridd te anotás, guardás el encuentro y te enterás de los que se vienen cerca tuyo.
-          </p>
-          <StoreButtons />
-          <Link
-            href="/testers"
-            className="self-start text-sm font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand-text focus-visible:text-brand-text"
-          >
-            ¿Querés probarla antes? Sumate a la beta →
-          </Link>
-        </section>
-      </main>
-      <SiteFooter />
+    <div className="flex min-h-dvh flex-col">
+      <ScreenHeader title="Próximos encuentros" fallback="/" />
+      <EventsList events={events} now={now} radius={viewer?.searchRadius ?? DEFAULT_SEARCH_RADIUS} />
     </div>
   )
 }

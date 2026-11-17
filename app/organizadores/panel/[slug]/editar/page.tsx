@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 
 import { EventForm } from "@/components/organizer/event-form"
-import { SiteHeader } from "@/components/site-header"
 import { getEventAs } from "@/lib/convex"
 import { requirePublisherPage } from "@/lib/guards"
 import { requestTime } from "@/lib/event-time"
@@ -18,9 +17,9 @@ export default async function EditarEventoPage({ params }: PageProps<"/organizad
   if (event.organizer?._id !== viewer._id || event.status !== "published") redirect(`/e/${slug}`)
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <SiteHeader />
-      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-5 pt-8 pb-16 sm:px-8">
+    // Pantalla completa, sin pestañas, como `publish` en la app (fullScreenModal).
+    <div className="flex min-h-dvh flex-col">
+      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]">
         <EventForm initial={event} now={requestTime()} mapsKey={process.env.GOOGLE_MAPS_API_KEY} />
       </main>
     </div>
