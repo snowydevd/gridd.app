@@ -1,34 +1,34 @@
 import type { Metadata } from "next"
+import { headers } from "next/headers"
+import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Calendar03Icon, Location01Icon, UserGroupIcon } from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowRight01Icon, Calendar03Icon, Location01Icon, UserGroupIcon } from "@hugeicons/core-free-icons"
+import type { IconSvgElement } from "@hugeicons/react"
 
-import { Wordmark } from "@/components/brand/wordmark"
-import { EventActions } from "@/components/events/event-actions"
-import { StoreButtons } from "@/components/landing/store-buttons"
-import { SiteFooter } from "@/components/site-footer"
-import { SiteHeader } from "@/components/site-header"
-import { getEvent, getEventAs, getViewer, KIND_LABELS, query, type GriddEvent } from "@/lib/convex"
-import { embedUrl } from "@/lib/maps"
+import { EventActionBar, EventPlaceMap, EventTopBar } from "@/components/app/event-detail"
+import { Card, Fade, Icon, Tag, text } from "@/components/app/ui"
+import { getEvent, getEventAs, getViewer, KIND_LABELS, query, type Attendee, type GriddEvent } from "@/lib/convex"
+import { DEFAULT_COVER, whenLabel } from "@/lib/event-format"
 import { pageToken } from "@/lib/session"
 import { site } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
-// La página que abre un link compartido desde la app (gridd.app/e/<slug>). Con la app instalada,
-// el link la abre directo (Universal Links / App Links) y esta página no se ve.
+// La ficha de un evento (mobile/src/app/event/[id].tsx), y el destino de los links compartidos
+// (gridd.app/e/<slug>). En Android, con la app instalada, el link la abre directo (App Links).
 
 const TZ = "America/Montevideo"
-
 const dayFmt = new Intl.DateTimeFormat("es-UY", { weekday: "long", day: "numeric", month: "long", timeZone: TZ })
 const timeFmt = new Intl.DateTimeFormat("es-UY", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: TZ })
 
-function when(event: GriddEvent) {
-  const day = dayFmt.format(event.startsAt)
+function when(event: GriddEvent, now: number) {
+  const long = dayFmt.format(event.startsAt).replace(",", "")
+  const isToday = whenLabel(event, now).isToday
   const start = timeFmt.format(event.startsAt)
   const hours = event.noEndTime ? `${start} hs` : `${start} – ${timeFmt.format(event.endsAt)} hs`
-  // Se renderiza en cada request: la hora del server es la del pedido.
-  const ended = event.status !== "cancelled" && event.endsAt < Date.now()
-  return { day: day.charAt(0).toUpperCase() + day.slice(1), hours, ended }
+  const ended = event.status !== "cancelled" && event.endsAt < now
+  // "Hoy, martes 27 de octubre", como la app.
+  const day = isToday ? `Hoy, ${long}` : long.charAt(0).toUpperCase() + long.slice(1)
+  return { day, hours, ended, isToday }
 }
 
 export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Promise<Metadata> {
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Prom
   const event = await getEvent(slug)
   if (!event) return { title: "Evento no encontrado", robots: { index: false } }
 
-  const { day, hours } = when(event)
+  const { day, hours } = when(event, Date.now())
   const description = `${day} · ${hours} · ${event.placeName}`
   return {
     title: event.title,
@@ -55,6 +55,8 @@ export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Prom
   }
 }
 
+const MAX_FACES = 5
+
 export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
   const { slug } = await params
   const token = await pageToken(`/e/${slug}`)
@@ -62,155 +64,173 @@ export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
   const event = token ? await getEventAs(slug, token) : await getEvent(slug)
   if (!event) notFound()
 
-  const [viewer, attending] = token
+  const viewer = token ? await getViewer(token) : null
+  const signedIn = !!token && !!viewer
+  const [attending, saved, attendees] = signedIn
     ? await Promise.all([
-        getViewer(token),
         query<boolean>("attendance:isAttending", { eventId: event._id }, token).catch(() => false),
+        query<boolean>("saves:isSaved", { eventId: event._id }, token).catch(() => false),
+        query<Attendee[]>("attendance:list", { eventId: event._id }, token).catch(() => null),
       ])
-    : [null, false]
+    : [false, false, null]
 
-  const { day, hours, ended } = when(event)
+  // Se renderiza en cada request: la hora del server es la del pedido.
+  const now = Date.now()
+  const { day, hours, ended, isToday } = when(event, now)
   const cancelled = event.status === "cancelled"
   const isOpen = event.status === "published" && !ended
   const isOrganizer = !!viewer && event.organizer?._id === viewer._id
-  const organizer = event.organizer?.name ?? "Organizador"
+  const organizerName = event.organizer?.name ?? "Organizador"
+  const short = whenLabel(event, now)
+  // Android con la app instalada abre el link solo; si no (p. ej. desde Instagram), esto la abre.
+  const android = /Android/i.test((await headers()).get("user-agent") ?? "")
+
+  const detail = {
+    _id: event._id,
+    slug,
+    title: event.title,
+    placeName: event.placeName,
+    lat: event.lat,
+    lon: event.lon,
+    startsAt: event.startsAt,
+    endsAt: event.endsAt,
+    attendeeCount: event.attendeeCount,
+    shareWhen: `${short.day} ${short.time} hs`,
+  }
+  const faces = attendees?.slice(0, MAX_FACES) ?? []
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <SiteHeader>
-        {/* Si el link no abrió la app sola (p. ej. desde el navegador de Instagram), esto la abre. */}
-        <a
-          href={`gridd://event/${slug}`}
-          className="rounded-4xl bg-brand px-4 py-2 text-sm font-medium whitespace-nowrap text-brand-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-brand/40"
+    <div className="relative min-h-dvh pb-[calc(env(safe-area-inset-bottom)+6.5rem)]">
+      <div className="relative mx-auto h-[340px] max-w-xl bg-card sm:mt-4 sm:overflow-hidden sm:rounded-[16px]">
+        {/* Viene del storage de Convex: no pasa por el optimizador de imágenes. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={event.imageUrl ?? DEFAULT_COVER} alt="" className="absolute inset-0 size-full object-cover" />
+        <Fade from="45%" />
+        <EventTopBar event={detail} signedIn={signedIn} isOrganizer={isOrganizer} isOpen={isOpen} />
+      </div>
+
+      <main className="relative mx-auto -mt-8 flex max-w-xl flex-col gap-3 px-4">
+        <div className="flex flex-wrap gap-2">
+          {isToday && !cancelled && <Tag tone="accent">Hoy</Tag>}
+          <Tag>{KIND_LABELS[event.kind] ?? "Encuentro"}</Tag>
+          {cancelled && <Tag className="border-destructive text-destructive">Cancelado</Tag>}
+          {ended && <Tag>Terminó</Tag>}
+          {event.status === "hidden" && <Tag className="border-destructive text-destructive">Oculto por moderación</Tag>}
+        </div>
+        <h1 className={cn(text.display, "text-balance")}>{event.title}</h1>
+
+        {/* "N van" con las fotos de los primeros anotados. Un invitado ve sólo el número. */}
+        <Link
+          href={signedIn ? `/e/${slug}/asistentes` : `/ingresar?next=${encodeURIComponent(`/e/${slug}`)}`}
+          aria-disabled={signedIn ? faces.length === 0 : event.attendeeCount === 0}
+          className="flex items-center gap-2 self-start outline-none aria-disabled:pointer-events-none active:opacity-70 focus-visible:underline"
         >
-          Abrir <span className="hidden sm:inline">en la </span>app
-        </a>
-      </SiteHeader>
-
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-5 pt-6 pb-16 sm:px-8">
-        <div className="relative aspect-[16/10] overflow-hidden rounded-3xl border border-border bg-muted">
-          {event.imageUrl ? (
-            // Viene del storage de Convex: no pasa por el optimizador de imágenes.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={event.imageUrl} alt="" className="size-full object-cover" />
+          {faces.length > 0 ? (
+            <span className="relative h-7" style={{ width: 28 + (faces.length - 1) * 18 }}>
+              {faces.map((person, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={person._id}
+                  src={person.image ?? "/app/avatar.jpg"}
+                  alt=""
+                  className="absolute top-0 size-7 rounded-full border-2 border-background object-cover"
+                  style={{ left: i * 18, zIndex: MAX_FACES - i }}
+                />
+              ))}
+            </span>
           ) : (
-            <div className="flex size-full items-center justify-center">
-              <Wordmark className="h-8 text-muted-foreground" mono />
-            </div>
+            <Icon icon={UserGroupIcon} className="size-4 text-muted-foreground" />
           )}
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap gap-2">
-            <Tag>{KIND_LABELS[event.kind] ?? "Encuentro"}</Tag>
-            {cancelled && <Tag tone="danger">Cancelado</Tag>}
-            {ended && <Tag>Terminó</Tag>}
-          </div>
-          <h1 className="text-[clamp(2rem,6vw,3.25rem)] leading-[1.02] tracking-[-0.02em] text-balance">
-            {event.title}
-          </h1>
-          <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <HugeiconsIcon icon={UserGroupIcon} strokeWidth={1.8} aria-hidden className="size-4" />
-            {event.attendeeCount === 1 ? "Va 1 persona" : `Van ${event.attendeeCount} personas`}
-          </p>
-        </div>
+          <span className={cn(text.label, "text-muted-foreground")}>
+            {event.attendeeCount} van
+            {!signedIn && event.attendeeCount > 0 ? " · Iniciá sesión para ver quiénes" : ""}
+          </span>
+          {signedIn && faces.length > 0 && <span className={cn(text.label, "text-brand-text")}>Ver todos</span>}
+        </Link>
 
         {cancelled && (
-          <p className="rounded-2xl border border-destructive/40 bg-destructive/10 px-5 py-4 text-sm">
+          <p className={cn(text.body, "rounded-[12px] border border-destructive/40 bg-destructive/10 px-4 py-3")}>
             El organizador canceló este encuentro.
           </p>
         )}
 
-        <div className="divide-y divide-border rounded-3xl border border-border bg-card px-5">
+        <Card className="mt-3 px-4">
           <Fact icon={Calendar03Icon} title={day} subtitle={hours} />
-          <Fact icon={Location01Icon} title={event.placeName} />
-        </div>
+          <div className="h-px bg-border" />
+          <Fact icon={Location01Icon} title={event.placeName} subtitle={event.placeName} />
+        </Card>
 
-        <EventActions
-          eventId={event._id}
-          slug={slug}
-          lat={event.lat}
-          lon={event.lon}
-          attending={attending}
-          attendeeCount={event.attendeeCount}
-          isOpen={isOpen}
-          cancelled={cancelled}
-          isOrganizer={isOrganizer}
-        />
+        <EventPlaceMap event={detail} mapsKey={process.env.GOOGLE_MAPS_API_KEY} />
 
-        {/* El mapa del lugar, como en la ficha de la app. Sin API key: es el embed público de Google. */}
-        <iframe
-          title={`Mapa: ${event.placeName}`}
-          src={embedUrl(event.lat, event.lon)}
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          className="aspect-[16/9] w-full rounded-3xl border border-border bg-muted"
-        />
+        {event.description && <p className={cn(text.body, "mt-2 whitespace-pre-line text-muted-foreground")}>{event.description}</p>}
 
-        {event.description && (
-          <p className="text-base leading-7 whitespace-pre-line text-muted-foreground">{event.description}</p>
+        {event.organizer ? (
+          <Link
+            href={`/organizador/${event.organizer._id}`}
+            aria-label={`Ver perfil de ${organizerName}`}
+            className="mt-3 flex items-center gap-3 border-t border-border pt-4 outline-none active:opacity-70 focus-visible:underline"
+          >
+            <Avatar name={organizerName} image={event.organizer.image} />
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className={cn(text.caption, "text-muted-foreground")}>Organiza</span>
+              <span className={cn(text.heading, "truncate")}>{organizerName}</span>
+            </span>
+            <Icon icon={ArrowRight01Icon} className="size-[18px] text-muted-foreground" />
+          </Link>
+        ) : (
+          <div className="mt-3 flex items-center gap-3 border-t border-border pt-4">
+            <Avatar name={organizerName} image={null} />
+            <span className="flex flex-col">
+              <span className={cn(text.caption, "text-muted-foreground")}>Organiza</span>
+              <span className={text.heading}>{organizerName}</span>
+            </span>
+          </div>
         )}
 
-        <div className="flex items-center gap-3 border-t border-border pt-6">
-          {event.organizer?.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={event.organizer.image} alt="" className="size-11 rounded-full object-cover" />
-          ) : (
-            <div className="flex size-11 items-center justify-center rounded-full bg-muted text-xs font-semibold text-brand-text">
-              {organizer.slice(0, 2).toUpperCase()}
-            </div>
-          )}
-          <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground">Organiza</span>
-            <span className="font-medium">{organizer}</span>
-          </div>
-        </div>
-
-        <section className="flex flex-col gap-4 rounded-3xl border border-border bg-card p-6">
-          <h2 className="text-xl tracking-[-0.01em]">Llevalo en la app</h2>
-          <p className="text-sm leading-6 text-muted-foreground">
-            En Gridd guardás el encuentro, lo sumás al calendario y te enterás de los que se vienen cerca tuyo.
-          </p>
-          <StoreButtons />
-        </section>
+        {android && (
+          <a
+            href={`gridd://event/${slug}`}
+            className={cn(text.label, "mt-4 self-center rounded-full border border-border px-4 py-2 text-muted-foreground")}
+          >
+            Abrir en la app
+          </a>
+        )}
       </main>
-      <SiteFooter />
+
+      <EventActionBar
+        event={detail}
+        signedIn={signedIn}
+        isOrganizer={isOrganizer}
+        isOpen={isOpen}
+        cancelled={cancelled}
+        attending={attending}
+        saved={saved}
+      />
     </div>
   )
 }
 
-function Tag({ children, tone = "default" }: { children: React.ReactNode; tone?: "default" | "danger" }) {
+function Fact({ icon, title, subtitle }: { icon: IconSvgElement; title: string; subtitle: string }) {
   return (
-    <span
-      className={cn(
-        "rounded-full px-3 py-1 text-[0.68rem] font-semibold tracking-[0.12em] uppercase",
-        tone === "danger" ? "bg-destructive/15 text-destructive" : "bg-muted text-muted-foreground"
-      )}
-    >
-      {children}
-    </span>
-  )
-}
-
-function Fact({
-  icon,
-  title,
-  subtitle,
-  children,
-}: {
-  icon: typeof Calendar03Icon
-  title: string
-  subtitle?: string
-  children?: React.ReactNode
-}) {
-  return (
-    <div className="flex items-start gap-4 py-5">
-      <HugeiconsIcon icon={icon} strokeWidth={1.8} aria-hidden className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
-      <div className="flex flex-col gap-1">
-        <span className="font-medium">{title}</span>
-        {subtitle && <span className="text-sm text-muted-foreground">{subtitle}</span>}
-        {children}
+    <div className="flex items-center gap-3 py-4">
+      <Icon icon={icon} className="text-muted-foreground" />
+      <div className="flex min-w-0 flex-col">
+        <span className={text.heading}>{title}</span>
+        <span className={cn(text.label, "text-muted-foreground")}>{subtitle}</span>
       </div>
     </div>
+  )
+}
+
+/** Foto del organizador; sin foto, sus iniciales en flúor (como `orgBadge` en la app). */
+function Avatar({ name, image }: { name: string; image: string | null }) {
+  if (image) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={image} alt="" className="size-11 shrink-0 rounded-full object-cover" />
+  }
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  const initials = (words.length > 1 ? words.slice(0, 3).map((w) => w[0]).join("") : name.slice(0, 2)).toUpperCase()
+  return (
+    <span className={cn(text.overline, "flex size-11 shrink-0 items-center justify-center rounded-full bg-raised text-brand-text")}>{initials}</span>
   )
 }

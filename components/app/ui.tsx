@@ -24,7 +24,7 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger"
 /** `Button` de la app: 52 px de alto, radio 12, ícono a la izquierda. */
 export function buttonClass(variant: ButtonVariant = "primary", className?: string) {
   return cn(
-    "inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[12px] px-6 text-base leading-[22px] font-semibold outline-none transition-opacity select-none active:opacity-75 focus-visible:ring-[3px] focus-visible:ring-ring/60 disabled:pointer-events-none aria-disabled:pointer-events-none",
+    "inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[12px] px-6 text-base whitespace-nowrap leading-[22px] font-semibold outline-none transition-opacity select-none active:opacity-75 focus-visible:ring-[3px] focus-visible:ring-ring/60 disabled:pointer-events-none aria-disabled:pointer-events-none",
     variant === "primary" && "bg-brand text-brand-foreground disabled:bg-raised disabled:text-disabled",
     variant === "secondary" && "border border-border bg-card text-foreground disabled:bg-raised disabled:text-disabled",
     variant === "ghost" && "border border-brand-text bg-brand/16 text-brand-text disabled:opacity-50",
