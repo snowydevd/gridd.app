@@ -130,7 +130,7 @@ export function EventTopBar({ event, signedIn, isOrganizer, isOpen }: Pick<Props
     calendar: {
       title: "Agregar al calendario",
       actions: [
-        { label: "Calendario del teléfono", onSelect: () => (window.location.href = `/e/${event.slug}/calendario`) },
+        { label: "Calendario del teléfono", onSelect: () => void window.open(`/e/${event.slug}/calendario`, "_self") },
         { label: "Google Calendar", style: "ghost", onSelect: () => window.open(googleCalendar, "_blank", "noopener") },
       ],
     },

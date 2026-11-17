@@ -22,8 +22,6 @@ export function RadiusPill({ radius, signedIn }: { radius: SearchRadius; signedI
   const [, startTransition] = useTransition()
   const box = useRef<HTMLDivElement>(null)
 
-  useEffect(() => setValue(radius), [radius])
-
   useEffect(() => {
     if (!open) return
     const close = (e: PointerEvent) => {

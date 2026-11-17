@@ -9,6 +9,7 @@ import { EventActionBar, EventPlaceMap, EventTopBar } from "@/components/app/eve
 import { Card, Fade, Icon, Tag, text } from "@/components/app/ui"
 import { getEvent, getEventAs, getViewer, KIND_LABELS, query, type Attendee, type GriddEvent } from "@/lib/convex"
 import { DEFAULT_COVER, whenLabel } from "@/lib/event-format"
+import { requestTime } from "@/lib/event-time"
 import { pageToken } from "@/lib/session"
 import { site } from "@/lib/site"
 import { cn } from "@/lib/utils"
@@ -75,7 +76,7 @@ export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
     : [false, false, null]
 
   // Se renderiza en cada request: la hora del server es la del pedido.
-  const now = Date.now()
+  const now = requestTime()
   const { day, hours, ended, isToday } = when(event, now)
   const cancelled = event.status === "cancelled"
   const isOpen = event.status === "published" && !ended

@@ -6,6 +6,7 @@ import { EventRow } from "@/components/app/event-cards"
 import { OrganizerActions, OrganizerMore } from "@/components/app/organizer-actions"
 import { Icon, ScreenHeader, text } from "@/components/app/ui"
 import { ConvexCallError, getViewer, query, type OrganizerProfile } from "@/lib/convex"
+import { requestTime } from "@/lib/event-time"
 import { pageToken } from "@/lib/session"
 import { cn } from "@/lib/utils"
 
@@ -41,7 +42,7 @@ export default async function OrganizadorPage({ params }: PageProps<"/organizado
   const name = profile.name ?? "Organizador"
   const isMe = viewer?._id === profile._id
   const published = profile.upcoming.length + profile.past.length
-  const now = Date.now()
+  const now = requestTime()
   const stats = [
     { value: profile.followerCount, label: profile.followerCount === 1 ? "Seguidor" : "Seguidores" },
     { value: published, label: published === 1 ? "Evento" : "Eventos" },

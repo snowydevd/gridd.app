@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useEffect, useState, useTransition } from "react"
+import { useState, useSyncExternalStore, useTransition } from "react"
 import { ArrowRight01Icon, ContrastIcon, Delete02Icon, Mail01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 
 import { ConfirmDialog } from "@/components/app/dialog"
@@ -11,11 +11,17 @@ import { site } from "@/lib/site"
 import { applyPreference, readPreference, THEME_LABELS, THEME_PREFERENCES, type ThemePreference } from "@/lib/theme"
 import { cn } from "@/lib/utils"
 
+const THEME_EVENT = "gridd:theme"
+const subscribeTheme = (listener: () => void) => {
+  window.addEventListener(THEME_EVENT, listener)
+  return () => window.removeEventListener(THEME_EVENT, listener)
+}
+
 /** "Apariencia": Sistema, Claro u Oscuro. Es del dispositivo, como en la app. */
 export function AppearanceRow() {
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState<ThemePreference>("system")
-  useEffect(() => setValue(readPreference()), [])
+  // Se lee de localStorage; en el server (y al hidratar) es "Sistema".
+  const value = useSyncExternalStore(subscribeTheme, readPreference, () => "system" as ThemePreference)
   return (
     <>
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className={cn(rowClass, "min-h-14", open && "border-b border-border")}>
@@ -35,7 +41,7 @@ export function AppearanceRow() {
                   aria-pressed={selected}
                   onClick={() => {
                     applyPreference(option)
-                    setValue(option)
+                    window.dispatchEvent(new Event(THEME_EVENT))
                     setOpen(false)
                   }}
                   className={cn("flex min-h-12 w-full items-center gap-2 pl-9 text-left outline-none active:opacity-70", i < 2 && "border-b border-border")}
