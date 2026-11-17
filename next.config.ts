@@ -23,6 +23,10 @@ const APP_ROUTES: [string, string][] = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Las actualizaciones de Next que proponen los agentes: sólo las de seguridad.
+    agentUpgrade: "security",
+  },
   async redirects() {
     return APP_ROUTES.map(([source, destination]) => ({ source, destination, permanent: false }));
   },
