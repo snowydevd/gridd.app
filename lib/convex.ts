@@ -68,6 +68,8 @@ export type GriddEvent = {
   attendeeCount: number
   imageUrl: string | null
   organizer: { _id: string; name: string | null; image: string | null } | null
+  /** Última edición (ms); la usa el sitemap. */
+  updatedAt?: number
 }
 
 /** Un evento por slug, o `null`. `cache` evita pedirlo dos veces (metadata + página). */

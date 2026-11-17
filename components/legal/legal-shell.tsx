@@ -9,12 +9,15 @@ function LegalShell({
   title,
   description,
   updated = true,
+  updatedAt = site.legalUpdatedAt,
   children,
 }: {
   title: string
   description?: React.ReactNode
   /** La fecha de revisión no aplica en páginas que no son un texto legal. */
   updated?: boolean
+  /** Fecha propia, para una página que cambió después que las demás. */
+  updatedAt?: string
   children: React.ReactNode
 }) {
   return (
@@ -23,7 +26,7 @@ function LegalShell({
       <div className="flex flex-col gap-6">
         {updated && (
           <p className="text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-muted-foreground">
-            Última actualización: {site.legalUpdatedAt}
+            Última actualización: {updatedAt}
           </p>
         )}
         {children}
