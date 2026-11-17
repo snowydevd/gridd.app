@@ -11,7 +11,6 @@ import {
 import type { IconSvgElement } from "@hugeicons/react"
 
 import { signOut } from "@/app/ingresar/actions"
-import { RadiusRow } from "@/components/app/radius-row"
 import { buttonClass, Card, Icon, rowClass, text } from "@/components/app/ui"
 import { ProfileIdentity } from "@/components/profile/profile-identity"
 import { carTitle, getViewer, isPublisher, query, type Car, type GriddEvent, type PublisherRequest } from "@/lib/convex"
@@ -104,7 +103,6 @@ export default async function PerfilPage() {
           <Row href="/perfil/organizar" icon={CheckmarkBadge01Icon} label="Quiero organizar encuentros" value={requestStatus} />
         )}
         <Row href="/perfil/cuenta" icon={Settings02Icon} label="Cuenta" />
-        <RadiusRow radius={viewer.searchRadius} />
         <form action={signOut}>
           <button type="submit" className={cn(rowClass, "text-destructive")}>
             <Icon icon={Logout01Icon} />

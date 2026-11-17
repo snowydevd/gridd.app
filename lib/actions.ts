@@ -4,11 +4,10 @@ import { revalidatePath } from "next/cache"
 
 import { withSession, type ActionResult } from "@/lib/authed"
 import { action, KIND_LABELS, mutation } from "@/lib/convex"
-import { isSearchRadius, type SearchRadius } from "@/lib/search-radius"
 import { clearSession, getToken } from "@/lib/session"
 
 /**
- * Las acciones de las pantallas de la app que no tienen una página propia: guardar, intereses, radio,
+ * Las acciones de las pantallas de la app que no tienen una página propia: guardar, intereses,
  * garage, seguir, reportar, eliminar la cuenta. Todas con el token de la sesión (nunca un userId del
  * cliente) y las mismas mutations que usa la app. Los mensajes de error de Convex llegan en español.
  */
@@ -33,12 +32,6 @@ export async function toggleSave(input: { eventId: string }): Promise<ActionResu
     const { saved } = await mutation<{ saved: boolean }>("saves:toggle", { eventId: input.eventId }, token)
     return saved
   })
-}
-
-/** Rango de "Cerca tuyo" (`users.setSearchRadius`). */
-export async function setSearchRadius(input: { radius: SearchRadius }): Promise<ActionResult> {
-  if (!isSearchRadius(input?.radius)) return invalid("Elegí un rango de la lista.")
-  return run("radio", RETRY, (token) => mutation<null>("users:setSearchRadius", { radius: input.radius }, token))
 }
 
 /** Categorías que le gustan (`users.setInterests`): reemplaza la lista entera. */

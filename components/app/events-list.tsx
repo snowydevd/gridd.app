@@ -7,24 +7,18 @@ import { EventRow } from "@/components/app/event-cards"
 import { chipClass, EmptyState, Icon } from "@/components/app/ui"
 import { KIND_LABELS, type GriddEvent } from "@/lib/convex"
 import { filterEvents } from "@/lib/event-filters"
-import { distanceKm, withinRadius, type SearchRadius } from "@/lib/search-radius"
-import { useKnownLocation } from "@/lib/use-location"
 
 const KINDS = Object.keys(KIND_LABELS)
 
 /**
- * "Próximos encuentros" (mobile/src/app/events/index.tsx): chips de categoría y la lista por fecha,
- * dentro del rango de "Cerca tuyo" si se conoce la ubicación. En la web suma un buscador.
+ * "Próximos encuentros" (mobile/src/app/events/index.tsx): chips de categoría y la lista por fecha.
+ * En la web no se filtra por distancia y suma un buscador.
  */
-export function EventsList({ events, now, radius }: { events: GriddEvent[]; now: number; radius: SearchRadius }) {
-  const here = useKnownLocation()
+export function EventsList({ events, now }: { events: GriddEvent[]; now: number }) {
   const [kind, setKind] = useState<string | null>(null)
   const [query, setQuery] = useState("")
 
-  const visible = filterEvents(events, { text: query, kind, when: "all" }, now).filter(
-    (e) => !here || withinRadius(distanceKm(here, { lat: e.lat, lon: e.lon }), radius)
-  )
-  const near = here ? " cerca" : ""
+  const visible = filterEvents(events, { text: query, kind, when: "all" }, now)
 
   return (
     <>
@@ -57,8 +51,8 @@ export function EventsList({ events, now, radius }: { events: GriddEvent[]; now:
             {query
               ? "No hay encuentros con esa búsqueda."
               : kind
-                ? `No hay encuentros de ${KIND_LABELS[kind]}${near} por ahora.`
-                : `No hay encuentros${near} por ahora.`}
+                ? `No hay encuentros de ${KIND_LABELS[kind]} por ahora.`
+                : "No hay encuentros por ahora."}
           </EmptyState>
         ) : (
           visible.map((event) => <EventRow key={event._id} event={event} now={now} />)

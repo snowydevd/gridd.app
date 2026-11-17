@@ -4,12 +4,11 @@ import { Calendar03Icon } from "@hugeicons/core-free-icons"
 
 import { AccountCards } from "@/components/app/account-cards"
 import { HomeFeed } from "@/components/app/home-feed"
-import { ProfilePill, RadiusPill } from "@/components/app/home-header"
+import { ProfilePill } from "@/components/app/home-header"
 import { buttonClass, EmptyState } from "@/components/app/ui"
 import { Wordmark } from "@/components/brand/wordmark"
 import { getViewer, isPublisher, listUpcomingEvents, query, type Car, type GriddEvent } from "@/lib/convex"
 import { legalNav } from "@/lib/legal"
-import { DEFAULT_SEARCH_RADIUS } from "@/lib/search-radius"
 import { pageToken } from "@/lib/session"
 import { site } from "@/lib/site"
 
@@ -51,10 +50,7 @@ export default async function HomePage() {
         <Link href="/" aria-label="Gridd — inicio" className="rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/60">
           <Wordmark className="h-[22px] text-foreground" />
         </Link>
-        <div className="flex items-center gap-2">
-          <RadiusPill radius={viewer?.searchRadius ?? DEFAULT_SEARCH_RADIUS} signedIn={signedIn} />
-          <ProfilePill viewer={viewer} />
-        </div>
+        <ProfilePill viewer={viewer} />
       </header>
 
       {events.length === 0 ? (
@@ -79,7 +75,6 @@ export default async function HomePage() {
           going={going}
           now={now}
           interests={viewer?.interests ?? []}
-          radius={viewer?.searchRadius ?? DEFAULT_SEARCH_RADIUS}
         />
       )}
 

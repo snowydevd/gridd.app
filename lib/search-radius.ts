@@ -1,19 +1,8 @@
 /**
- * Rangos de "Cerca tuyo", en km: los mismos que mobile/convex/lib/searchRadius.ts. "all" (+500 km)
- * cubre todo Uruguay. Se eligen en Inicio (la cápsula de arriba) o en el perfil (Ubicación).
+ * Rango de "Cerca tuyo" de la app (mobile/convex/lib/searchRadius.ts). La web no filtra por distancia,
+ * pero `users.me` lo devuelve: el tipo queda para `Viewer`.
  */
-export const SEARCH_RADII = [10, 25, 50, 100, 200, 500, "all"] as const
-export type SearchRadius = (typeof SEARCH_RADII)[number]
-
-export const DEFAULT_SEARCH_RADIUS: SearchRadius = 25
-
-export const searchRadiusLabel = (radius: SearchRadius) => (radius === "all" ? "+500 km" : `${radius} km`)
-
-/** Si un evento a `distanceKm` entra en el rango. */
-export const withinRadius = (distanceKm: number, radius: SearchRadius) => radius === "all" || distanceKm <= radius
-
-export const isSearchRadius = (value: unknown): value is SearchRadius =>
-  (SEARCH_RADII as readonly unknown[]).includes(value)
+export type SearchRadius = 10 | 25 | 50 | 100 | 200 | 500 | "all"
 
 type LatLng = { lat: number; lon: number }
 
@@ -26,5 +15,5 @@ export function distanceKm(a: LatLng, b: LatLng) {
   return 2 * 6371 * Math.asin(Math.sqrt(h))
 }
 
-/** "1,4 km" o "23 km", como `formatKm` en la app. */
+/** "1,4 km" o "23 km", como `formatKm` en la app. Sólo se muestra si ya hay permiso de ubicación. */
 export const formatKm = (km: number) => (km < 10 ? `${km.toFixed(1).replace(".", ",")} km` : `${Math.round(km)} km`)
