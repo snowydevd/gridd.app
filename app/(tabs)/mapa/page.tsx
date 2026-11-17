@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 
+import { TopBanner } from "@/components/ads"
 import { EventsMap } from "@/components/app/events-map"
 import { listMapEvents } from "@/lib/convex"
 import { pageMetadata } from "@/lib/seo"
@@ -19,6 +20,7 @@ export default async function MapaPage() {
   return (
     <main className="flex h-[calc(100dvh-4rem-env(safe-area-inset-bottom))] flex-col">
       <h1 className="sr-only">Mapa de encuentros</h1>
+      <TopBanner />
       <EventsMap events={events} now={now} mapsKey={process.env.GOOGLE_MAPS_API_KEY} />
     </main>
   )

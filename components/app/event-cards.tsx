@@ -1,8 +1,10 @@
 "use client"
 
+import { Fragment } from "react"
 import Link from "next/link"
 
 import { Tag, text } from "@/components/app/ui"
+import { gridSlot } from "@/lib/ads"
 import type { GriddEvent } from "@/lib/convex"
 import { DEFAULT_COVER, whenLabel } from "@/lib/event-format"
 import { distanceKm, formatKm } from "@/lib/search-radius"
@@ -75,16 +77,21 @@ export function EventRow({ event, now, dimmed, href }: { event: GriddEvent; now:
 
 /**
  * Grilla de dos columnas, el escalón entre el destacado y las filas. Con cantidad impar la primera va
- * a todo el ancho, así nunca queda un hueco.
+ * a todo el ancho, así nunca queda un hueco. `slot` (el anuncio) va a todo el ancho según `gridSlot`.
  */
-export function EventGrid({ events, now }: { events: GriddEvent[]; now: number }) {
+export function EventGrid({ events, now, slot }: { events: GriddEvent[]; now: number; slot?: React.ReactNode }) {
   const wide = events.length % 2 === 1 ? events[0] : undefined
   const rest = wide ? events.slice(1) : events
+  const at = slot ? gridSlot(events.length) : null
   return (
     <div className="grid grid-cols-2 gap-x-3 gap-y-4">
       {wide && <GridTile event={wide} now={now} wide />}
-      {rest.map((event) => (
-        <GridTile key={event._id} event={event} now={now} />
+      {at === "afterWide" && slot}
+      {rest.map((event, i) => (
+        <Fragment key={event._id}>
+          <GridTile event={event} now={now} />
+          {at === "afterFirstPair" && i === 1 && slot}
+        </Fragment>
       ))}
     </div>
   )
