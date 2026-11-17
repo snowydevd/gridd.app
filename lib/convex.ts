@@ -201,6 +201,20 @@ export type OrganizerProfile = {
   past: GriddEvent[]
 }
 
+/**
+ * Perfil público de un organizador, o `null`. Convex sólo lo da si sigue siendo organizador (un
+ * usuario común, o uno al que le sacaron el permiso, no tiene perfil público). Un id con forma
+ * inválida es lo mismo que uno que no existe.
+ */
+export const getOrganizer = cache(async (id: string, token?: string) => {
+  try {
+    return await query<OrganizerProfile | null>("organizers:get", { userId: id }, token)
+  } catch (error) {
+    if (error instanceof ConvexCallError) return null
+    throw error
+  }
+})
+
 /** Las mismas etiquetas que la app (mobile/src/services/events.ts). */
 export const KIND_LABELS: Record<string, string> = {
   junada: "Encuentro",

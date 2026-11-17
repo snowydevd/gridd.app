@@ -1,28 +1,17 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
 import { CheckmarkBadge01Icon } from "@hugeicons/core-free-icons"
 
 import { EventRow } from "@/components/app/event-cards"
 import { OrganizerActions, OrganizerMore } from "@/components/app/organizer-actions"
 import { Icon, ScreenHeader, text } from "@/components/app/ui"
-import { ConvexCallError, getViewer, query, type OrganizerProfile } from "@/lib/convex"
+import { getOrganizer, getViewer } from "@/lib/convex"
 import { requestTime } from "@/lib/event-time"
 import { pageToken } from "@/lib/session"
 import { cn } from "@/lib/utils"
 
-async function getProfile(id: string, token?: string) {
-  try {
-    return await query<OrganizerProfile | null>("organizers:get", { userId: id }, token)
-  } catch (error) {
-    // Un id con forma inválida es lo mismo que uno que no existe.
-    if (error instanceof ConvexCallError) return null
-    throw error
-  }
-}
-
 export async function generateMetadata({ params }: PageProps<"/organizador/[id]">): Promise<Metadata> {
   const { id } = await params
-  const profile = await getProfile(id)
+  const profile = await getOrganizer(id)
   if (!profile) return { title: "Organizador no encontrado", robots: { index: false } }
   const name = profile.name ?? "Organizador"
   return {
@@ -36,8 +25,19 @@ export async function generateMetadata({ params }: PageProps<"/organizador/[id]"
 export default async function OrganizadorPage({ params }: PageProps<"/organizador/[id]">) {
   const { id } = await params
   const token = await pageToken(`/organizador/${id}`)
-  const [profile, viewer] = await Promise.all([getProfile(id, token), getViewer(token)])
-  if (!profile) notFound()
+  const [profile, viewer] = await Promise.all([getOrganizer(id, token), getViewer(token)])
+
+  // Como la app: un organizador que ya no existe (o dejó de serlo) muestra el aviso, no un 404 pelado.
+  if (!profile) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <ScreenHeader fallback="/" />
+        <main className="flex flex-1 items-center justify-center px-6 text-center">
+          <p className={cn(text.body, "text-muted-foreground")}>Este organizador ya no existe.</p>
+        </main>
+      </div>
+    )
+  }
 
   const name = profile.name ?? "Organizador"
   const isMe = viewer?._id === profile._id

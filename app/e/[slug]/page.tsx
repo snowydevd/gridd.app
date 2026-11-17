@@ -7,7 +7,7 @@ import type { IconSvgElement } from "@hugeicons/react"
 
 import { EventActionBar, EventPlaceMap, EventTopBar } from "@/components/app/event-detail"
 import { Card, Fade, Icon, Tag, text } from "@/components/app/ui"
-import { getEvent, getEventAs, getViewer, KIND_LABELS, query, type Attendee, type GriddEvent } from "@/lib/convex"
+import { getEvent, getEventAs, getOrganizer, getViewer, KIND_LABELS, query, type Attendee, type GriddEvent } from "@/lib/convex"
 import { DEFAULT_COVER, whenLabel } from "@/lib/event-format"
 import { requestTime } from "@/lib/event-time"
 import { pageToken } from "@/lib/session"
@@ -74,6 +74,9 @@ export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
         query<Attendee[]>("attendance:list", { eventId: event._id }, token).catch(() => null),
       ])
     : [false, false, null]
+
+  // Sólo se linkea al perfil si existe: un organizador que dejó de serlo no tiene perfil público.
+  const hasProfile = event.organizer ? (await getOrganizer(event.organizer._id, token)) !== null : false
 
   // Se renderiza en cada request: la hora del server es la del pedido.
   const now = requestTime()
@@ -165,7 +168,7 @@ export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
 
         {event.description && <p className={cn(text.body, "mt-2 whitespace-pre-line text-muted-foreground")}>{event.description}</p>}
 
-        {event.organizer ? (
+        {event.organizer && hasProfile ? (
           <Link
             href={`/organizador/${event.organizer._id}`}
             aria-label={`Ver perfil de ${organizerName}`}
@@ -180,7 +183,7 @@ export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
           </Link>
         ) : (
           <div className="mt-3 flex items-center gap-3 border-t border-border pt-4">
-            <Avatar name={organizerName} image={null} />
+            <Avatar name={organizerName} image={event.organizer?.image ?? null} />
             <span className="flex flex-col">
               <span className={cn(text.caption, "text-muted-foreground")}>Organiza</span>
               <span className={text.heading}>{organizerName}</span>
