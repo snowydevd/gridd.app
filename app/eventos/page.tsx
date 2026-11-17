@@ -44,7 +44,7 @@ export default async function EventosPage() {
           <StoreButtons />
           <Link
             href="/testers"
-            className="self-start text-sm font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand focus-visible:text-brand"
+            className="self-start text-sm font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand-text focus-visible:text-brand-text"
           >
             ¿Querés probarla antes? Sumate a la beta →
           </Link>

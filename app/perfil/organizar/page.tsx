@@ -72,7 +72,7 @@ function Status({
         icon={icon}
         strokeWidth={1.8}
         aria-hidden
-        className={tone === "danger" ? "size-6 shrink-0 text-destructive" : "size-6 shrink-0 text-brand"}
+        className={tone === "danger" ? "size-6 shrink-0 text-destructive" : "size-6 shrink-0 text-brand-text"}
       />
       <div className="flex flex-col gap-1">
         <span className="font-medium">{title}</span>

@@ -211,7 +211,7 @@ export function SignInForm({ next, initialMode = "signIn" }: { next: string; ini
         )}
 
         {notice && (
-          <p role="status" className="text-sm text-brand">
+          <p role="status" className="text-sm text-brand-text">
             {notice}
           </p>
         )}

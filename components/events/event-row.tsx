@@ -70,7 +70,7 @@ export function EventRow({
           rel="noopener noreferrer"
           aria-label={`Cómo llegar a ${event.placeName}`}
           title="Cómo llegar"
-          className="relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full border border-border bg-background text-brand outline-none hover:bg-input/30 focus-visible:ring-[3px] focus-visible:ring-brand/40"
+          className="relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full border border-border bg-background text-brand-text outline-none hover:bg-input/30 focus-visible:ring-[3px] focus-visible:ring-brand/40"
         >
           <HugeiconsIcon icon={Navigation03Icon} strokeWidth={1.8} aria-hidden className="size-5" />
         </a>

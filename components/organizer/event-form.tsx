@@ -270,7 +270,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
                 min={today}
                 value={day}
                 onChange={(e) => setDay(e.target.value)}
-                className={cn(ui.input, "[color-scheme:dark]")}
+                className={cn(ui.input)}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -283,7 +283,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
                   type="time"
                   value={start}
                   onChange={(e) => setStart(e.target.value)}
-                  className={cn(ui.input, "[color-scheme:dark]")}
+                  className={cn(ui.input)}
                 />
               </div>
               {!noEndTime && (
@@ -296,7 +296,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
                     type="time"
                     value={end}
                     onChange={(e) => setEnd(e.target.value)}
-                    className={cn(ui.input, "[color-scheme:dark]")}
+                    className={cn(ui.input)}
                   />
                 </div>
               )}
@@ -456,7 +456,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
                         href={placeUrl(coords.lat, coords.lon)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="self-start text-sm font-medium text-brand hover:underline"
+                        className="self-start text-sm font-medium text-brand-text hover:underline"
                       >
                         Revisar el punto en Google Maps →
                       </a>

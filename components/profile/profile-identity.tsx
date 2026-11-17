@@ -81,7 +81,7 @@ export function ProfileIdentity({ name, email, image, hasAvatar, verified }: Pro
             // eslint-disable-next-line @next/next/no-img-element
             <img src={image} alt="" className="size-full object-cover" />
           ) : (
-            <span className="flex size-full items-center justify-center text-xl font-semibold text-brand">
+            <span className="flex size-full items-center justify-center text-xl font-semibold text-brand-text">
               {initials}
             </span>
           )}
@@ -151,7 +151,7 @@ export function ProfileIdentity({ name, email, image, hasAvatar, verified }: Pro
               icon={CheckmarkBadge01Icon}
               strokeWidth={2}
               aria-label="Organizador verificado"
-              className="size-5 text-brand"
+              className="size-5 text-brand-text"
             />
           )}
         </div>

@@ -156,7 +156,7 @@ export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={event.organizer.image} alt="" className="size-11 rounded-full object-cover" />
           ) : (
-            <div className="flex size-11 items-center justify-center rounded-full bg-muted text-xs font-semibold text-brand">
+            <div className="flex size-11 items-center justify-center rounded-full bg-muted text-xs font-semibold text-brand-text">
               {organizer.slice(0, 2).toUpperCase()}
             </div>
           )}

@@ -33,7 +33,7 @@ function PicadasNotice({ className, ...props }: React.ComponentProps<"aside">) {
           en el evento borrado y la cuenta bloqueada.{" "}
           <Link
             href="/normas"
-            className="text-foreground underline underline-offset-4 hover:text-brand"
+            className="text-foreground underline underline-offset-4 hover:text-brand-text"
           >
             Leer las normas
           </Link>

@@ -75,7 +75,7 @@ export default async function PerfilPage() {
           {upcoming.length === 0 ? (
             <div className="flex flex-col items-center gap-3 rounded-3xl border border-border bg-card px-6 py-8 text-center">
               <p className="text-sm text-muted-foreground">Todavía no te anotaste a ningún encuentro.</p>
-              <Link href="/eventos" className="text-sm font-medium text-brand hover:underline">
+              <Link href="/eventos" className="text-sm font-medium text-brand-text hover:underline">
                 Ver próximos encuentros →
               </Link>
             </div>

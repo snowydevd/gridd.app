@@ -126,7 +126,7 @@ export default async function HomePage() {
           <StoreButtons />
           <Link
             href="/nosotros"
-            className="self-start text-sm font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand focus-visible:text-brand"
+            className="self-start text-sm font-medium text-foreground underline underline-offset-4 outline-none hover:text-brand-text focus-visible:text-brand-text"
           >
             Conocé Gridd →
           </Link>
@@ -151,7 +151,7 @@ function Section({
       <div className="flex items-baseline justify-between">
         <h2 className="text-xl tracking-[-0.01em] uppercase">{title}</h2>
         {action && (
-          <Link href={action.href} className="text-sm font-medium text-brand outline-none hover:underline focus-visible:underline">
+          <Link href={action.href} className="text-sm font-medium text-brand-text outline-none hover:underline focus-visible:underline">
             {action.label}
           </Link>
         )}
@@ -209,7 +209,7 @@ function AccountCard({ viewer }: { viewer: Viewer | null }) {
       href={step.href}
       className="group flex items-center gap-4 rounded-3xl border border-border bg-card p-5 outline-none hover:bg-input/30 focus-visible:ring-[3px] focus-visible:ring-ring/50"
     >
-      <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-muted text-brand">
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-muted text-brand-text">
         <HugeiconsIcon icon={step.icon} strokeWidth={1.8} aria-hidden className="size-6" />
       </span>
       <span className="flex flex-1 flex-col">

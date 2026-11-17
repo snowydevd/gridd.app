@@ -32,7 +32,7 @@ export function WhenLine({ when, className }: { when: When; className?: string }
     <span
       className={cn(
         "flex items-center gap-1.5 text-[0.7rem] font-semibold tracking-[0.12em] uppercase",
-        accent ? "text-brand" : "text-muted-foreground",
+        accent ? "text-brand-text" : "text-muted-foreground",
         className
       )}
     >
@@ -172,7 +172,7 @@ export function DirectionsButton({ event, overlay }: { event: GriddEvent; overla
         "relative z-10 flex shrink-0 items-center justify-center gap-1.5 rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-brand/50",
         overlay
           ? "h-10 bg-black/45 px-4 text-sm font-medium text-white backdrop-blur-md hover:bg-black/60"
-          : "size-11 border border-border bg-background text-brand hover:bg-input/30"
+          : "size-11 border border-border bg-background text-brand-text hover:bg-input/30"
       )}
     >
       <HugeiconsIcon icon={Navigation03Icon} strokeWidth={1.8} aria-hidden className="size-4.5" />

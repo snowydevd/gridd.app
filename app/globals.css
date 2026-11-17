@@ -4,33 +4,49 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* gridd es dark-only: :root y .dark comparten la misma paleta */
+/*
+ * Las dos paletas de la app (mobile/src/theme/palettes.ts). Por defecto se sigue el tema del teléfono,
+ * como "Sistema" en la app; `data-theme` en <html> lo fija (Cuenta → Apariencia, ver lib/theme.ts).
+ * `data-theme="dark"` en un elemento es el `DarkScope` de la app: tarjetas con texto sobre una foto
+ * oscurecida, que se ven igual en los dos temas.
+ *
+ * `--brand` es el relleno flúor (con `--brand-foreground` encima). Para texto, íconos o líneas finas en
+ * flúor va `--brand-text`: en claro el lima no se lee sobre blanco y pasa a un oliva oscuro.
+ */
 :root,
-.dark {
+[data-theme="dark"] {
+  color-scheme: dark;
   /* marca */
   --brand: #e2ff3b;
   --brand-foreground: #0b0b0c;
+  --brand-text: #e2ff3b;
 
-  /* paleta base (GRI-4) */
+  /* "Asfalto": canvas, surface, raised */
   --background: #0b0b0c;
   --foreground: #f2f3f5;
   --card: #17181b;
   --card-foreground: #f2f3f5;
   --popover: #17181b;
   --popover-foreground: #f2f3f5;
+  --raised: #1f2024;
   --primary: #f2f3f5;
   --primary-foreground: #0b0b0c;
-  --secondary: #22242a;
+  --secondary: #1f2024;
   --secondary-foreground: #f2f3f5;
-  --muted: #22242a;
+  --muted: #1f2024;
   --muted-foreground: #8a8f98;
+  --disabled: #4a4e55;
   /* --accent es el hover/focus de los componentes shadcn, no el fluor */
-  --accent: #22242a;
+  --accent: #1f2024;
   --accent-foreground: #f2f3f5;
-  --destructive: oklch(0.704 0.191 22.216);
+  --success: #3ddc84;
+  --warning: #ffb020;
+  --destructive: #ff4d4f;
+  --destructive-foreground: #0b0b0c;
   --border: #2a2c30;
   --input: #2a2c30;
   --ring: #4a4e57;
+  --overlay: rgba(11, 11, 12, 0.6);
   --chart-1: var(--brand);
   --chart-2: #f2f3f5;
   --chart-3: #b9bec7;
@@ -41,10 +57,87 @@
   --sidebar-foreground: #f2f3f5;
   --sidebar-primary: var(--brand);
   --sidebar-primary-foreground: var(--brand-foreground);
-  --sidebar-accent: #22242a;
+  --sidebar-accent: #1f2024;
   --sidebar-accent-foreground: #f2f3f5;
   --sidebar-border: #2a2c30;
   --sidebar-ring: #4a4e57;
+}
+
+/* "Papel": canvas blanco cálido, tarjetas blancas y tinta casi negra. */
+[data-theme="light"] {
+  color-scheme: light;
+  --brand: #e2ff3b;
+  --brand-foreground: #0b0b0c;
+  --brand-text: #4f5e00;
+  --background: #f6f5f0;
+  --foreground: #121212;
+  --card: #ffffff;
+  --card-foreground: #121212;
+  --popover: #ffffff;
+  --popover-foreground: #121212;
+  --raised: #eeede7;
+  --primary: #121212;
+  --primary-foreground: #f6f5f0;
+  --secondary: #eeede7;
+  --secondary-foreground: #121212;
+  --muted: #eeede7;
+  --muted-foreground: #5e6168;
+  --disabled: #a3a6ac;
+  --accent: #eeede7;
+  --accent-foreground: #121212;
+  --success: #16794a;
+  --warning: #9a5b00;
+  --destructive: #c8282b;
+  --destructive-foreground: #ffffff;
+  --border: #e1dfd7;
+  --input: #e1dfd7;
+  --ring: #a3a6ac;
+  --chart-2: #121212;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #121212;
+  --sidebar-accent: #eeede7;
+  --sidebar-accent-foreground: #121212;
+  --sidebar-border: #e1dfd7;
+  --sidebar-ring: #a3a6ac;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --brand: #e2ff3b;
+    --brand-foreground: #0b0b0c;
+    --brand-text: #4f5e00;
+    --background: #f6f5f0;
+    --foreground: #121212;
+    --card: #ffffff;
+    --card-foreground: #121212;
+    --popover: #ffffff;
+    --popover-foreground: #121212;
+    --raised: #eeede7;
+    --primary: #121212;
+    --primary-foreground: #f6f5f0;
+    --secondary: #eeede7;
+    --secondary-foreground: #121212;
+    --muted: #eeede7;
+    --muted-foreground: #5e6168;
+    --disabled: #a3a6ac;
+    --accent: #eeede7;
+    --accent-foreground: #121212;
+    --success: #16794a;
+    --warning: #9a5b00;
+    --destructive: #c8282b;
+    --destructive-foreground: #ffffff;
+    --border: #e1dfd7;
+    --input: #e1dfd7;
+    --ring: #a3a6ac;
+    --chart-2: #121212;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #121212;
+    --sidebar-accent: #eeede7;
+    --sidebar-accent-foreground: #121212;
+    --sidebar-border: #e1dfd7;
+    --sidebar-ring: #a3a6ac;
+  }
 }
 
 @theme inline {
@@ -52,6 +145,13 @@
   --color-foreground: var(--foreground);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-brand-text: var(--brand-text);
+  --color-raised: var(--raised);
+  --color-disabled: var(--disabled);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-overlay: var(--overlay);
   --color-accent: var(--accent);
   --font-sans: var(--font-hanken);
   --font-heading: var(--font-chivo);
