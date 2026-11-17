@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // Las actualizaciones de Next que proponen los agentes: sólo las de seguridad.
+    agentUpgrade: "security",
+  },
 };
 
 export default nextConfig;
