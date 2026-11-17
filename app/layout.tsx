@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
 import { InlineScript } from "@/components/inline-script";
 import { INTRO_SCRIPT } from "@/components/landing/intro-script";
+import { THEME_CANVAS, THEME_SCRIPT } from "@/lib/theme";
 
 // Las mismas fuentes que la app mobile: Chivo para títulos, Hanken Grotesk para el resto.
 const chivo = Chivo({
@@ -47,23 +48,40 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  // Agregada a la pantalla de inicio del iPhone abre sin la barra de Safari, como una app.
+  appleWebApp: {
+    capable: true,
+    title: site.name,
+    statusBarStyle: "default",
+  },
+  // Next sólo emite `mobile-web-app-capable`; iOS anteriores al 17 leen el de Apple.
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050505",
+  // El orden importa: `applyPreference` (lib/theme.ts) asume claro primero y oscuro después.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: THEME_CANVAS.light },
+    { media: "(prefers-color-scheme: dark)", color: THEME_CANVAS.dark },
+  ],
+  // Contenido hasta los bordes del iPhone; la barra de pestañas respeta la zona segura.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // `suppressHydrationWarning` porque el script inline de la landing (/nosotros) agrega
-    // `.js-anim` al <html> mientras el browser parsea, antes de que React
-    // hidrate. Sin esto React ve el `class` cambiado y tira mismatch.
+    // `suppressHydrationWarning` porque los scripts inline (tema y landing) tocan el <html> mientras
+    // el browser parsea, antes de que React hidrate: `data-theme` y `.js-anim`. Sin esto React ve
+    // los atributos cambiados y tira mismatch.
     <html
       lang={site.locale}
-      className={cn("dark h-full antialiased", chivo.variable, hanken.variable)}
+      className={cn("h-full antialiased", chivo.variable, hanken.variable)}
       suppressHydrationWarning
     >
       <head>
+        <InlineScript html={THEME_SCRIPT} />
         <InlineScript html={INTRO_SCRIPT} />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>

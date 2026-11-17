@@ -4,8 +4,9 @@ import { useEffect, useId, useRef, useState } from "react"
 import { Gps01Icon, Search01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
-import { DARK_MAP_STYLE, loadGoogleMaps } from "@/lib/google-maps"
+import { loadGoogleMaps, mapLook } from "@/lib/google-maps"
 import { UY_BOUNDS } from "@/lib/maps"
+import { useScheme } from "@/lib/use-scheme"
 import { ui } from "@/lib/ui"
 import { cn } from "@/lib/utils"
 
@@ -53,6 +54,13 @@ export function PlacePicker({
 }) {
   const mapEl = useRef<HTMLDivElement>(null)
   const map = useRef<google.maps.Map | null>(null)
+  // El estilo sigue al tema; el ref lo lee el efecto que crea el mapa una sola vez.
+  const resolvedScheme = useScheme()
+  const scheme = useRef(resolvedScheme)
+  useEffect(() => {
+    scheme.current = resolvedScheme
+    map.current?.setOptions(mapLook(resolvedScheme))
+  }, [resolvedScheme])
   // Hasta que la persona mueve o toca el mapa no hay lugar elegido: el centro inicial no cuenta.
   const touched = useRef(value !== null)
   const session = useRef<google.maps.places.AutocompleteSessionToken | null>(null)
@@ -83,8 +91,7 @@ export function PlacePicker({
         const m = new maps.Map(mapEl.current, {
           center: start ? { lat: start.lat, lng: start.lon } : MONTEVIDEO,
           zoom: start ? PLACE_ZOOM : 12,
-          styles: DARK_MAP_STYLE,
-          backgroundColor: "#111214",
+          ...mapLook(scheme.current),
           disableDefaultUI: true,
           zoomControl: true,
           clickableIcons: false,
@@ -296,7 +303,7 @@ export function PlacePicker({
         </p>
       )}
 
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-border bg-[#111214]">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[16px] border border-border bg-raised">
         <div ref={mapEl} className="absolute inset-0" />
         {!ready && (
           <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">

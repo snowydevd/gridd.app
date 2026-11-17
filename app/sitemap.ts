@@ -6,6 +6,7 @@ import { site } from "@/lib/site"
 const staticRoutes = [
   { path: "/", changeFrequency: "daily", priority: 1 },
   { path: "/eventos", changeFrequency: "daily", priority: 0.9 },
+  { path: "/mapa", changeFrequency: "daily", priority: 0.8 },
   { path: "/nosotros", changeFrequency: "weekly", priority: 0.8 },
   { path: "/testers", changeFrequency: "monthly", priority: 0.6 },
   { path: "/normas", changeFrequency: "yearly", priority: 0.4 },
