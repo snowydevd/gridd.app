@@ -11,7 +11,13 @@
 		"CONVEX_URL": "https://clean-rabbit-734.convex.cloud",
 		// Key de navegador de Google Maps (mapa, ficha y publicar). Es pública: viaja en el HTML; la
 		// protege la restricción por dominio (gridd.app) en Google Cloud. No es la key de Android.
-		"GOOGLE_MAPS_API_KEY": "AIzaSyC79f-1utpig3cv4UB5Nj3L8H9u3D9Geec"
+		"GOOGLE_MAPS_API_KEY": "AIzaSyC79f-1utpig3cv4UB5Nj3L8H9u3D9Geec",
+		// Anuncios de AdSense (lib/ads.ts). Cada lugar aparece cuando su unidad tiene ID: crear en
+		// AdSense un anuncio de display (banner) y uno in-feed (con su layout key) y pegarlos acá.
+		"ADS_ENABLED": "true",
+		"ADSENSE_BANNER_SLOT": "",
+		"ADSENSE_FEED_SLOT": "",
+		"ADSENSE_FEED_LAYOUT_KEY": ""
 	},
 	"observability": {
 		"enabled": true

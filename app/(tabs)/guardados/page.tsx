@@ -2,8 +2,10 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Bookmark02Icon, Calendar03Icon } from "@hugeicons/core-free-icons"
 
+import { FeedAd, TopBanner } from "@/components/ads"
 import { EventRow } from "@/components/app/event-cards"
 import { buttonClass, EmptyState, text } from "@/components/app/ui"
+import { withAdSlots } from "@/lib/ads"
 import { getViewer, isPublisher, query, type GriddEvent } from "@/lib/convex"
 import { requestTime } from "@/lib/event-time"
 import { pageToken } from "@/lib/session"
@@ -48,8 +50,15 @@ export default async function GuardadosPage({ searchParams }: PageProps<"/guarda
     }
   }
   const isEmpty = sections.every((s) => s.events.length === 0)
+  // Anuncios sólo en los guardados: "Mis eventos" es donde el organizador administra los suyos.
+  const withAds = segment === "saved"
+  const rows = withAds
+    ? withAdSlots(sections.map((s) => s.events))
+    : sections.map((s) => s.events.map((event) => ({ kind: "event" as const, event })))
 
   return (
+    <>
+    {withAds && <TopBanner />}
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-8">
       <h1 className={cn(text.display, "mb-6")}>Guardados</h1>
 
@@ -90,18 +99,23 @@ export default async function GuardadosPage({ searchParams }: PageProps<"/guarda
         )
       ) : (
         sections.map(
-          (section) =>
+          (section, i) =>
             section.events.length > 0 && (
               <section key={section.label} className="mt-6">
                 <h2 className={cn(text.overline, "mb-1 text-muted-foreground")}>{section.label}</h2>
-                {section.events.map((event) => (
-                  <EventRow key={event._id} event={event} now={now} dimmed={section.dimmed} />
-                ))}
+                {rows[i].map((item) =>
+                  item.kind === "ad" ? (
+                    <FeedAd key={item.key} variant="row" />
+                  ) : (
+                    <EventRow key={item.event._id} event={item.event} now={now} dimmed={section.dimmed} />
+                  )
+                )}
               </section>
             )
         )
       )}
     </main>
+    </>
   )
 }
 

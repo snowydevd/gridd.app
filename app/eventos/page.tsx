@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 
+import { TopBanner } from "@/components/ads"
 import { EventsList } from "@/components/app/events-list"
 import { ScreenHeader } from "@/components/app/ui"
 import { listUpcomingEvents } from "@/lib/convex"
@@ -20,6 +21,7 @@ export default async function EventosPage() {
   const { events, now } = await listUpcomingEvents()
   return (
     <div className="flex min-h-dvh flex-col">
+      <TopBanner />
       <ScreenHeader title="Próximos encuentros" fallback="/" />
       <EventsList events={events} now={now} />
     </div>
