@@ -157,5 +157,7 @@ export const KIND_LABELS: Record<string, string> = {
   "4x4": "4x4",
   motos: "Motos",
   pista: "Pista",
+  // Spotters que sacan fotos de vehículos en movimiento (p. ej. en la rambla) para después venderlas.
+  barridos: "Barridos (fotos)",
   otro: "Otro",
 }
