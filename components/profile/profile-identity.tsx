@@ -64,8 +64,6 @@ export function ProfileIdentity({ name, email, image, hasAvatar, verified }: Pro
     })
   }
 
-  const initials = (name ?? "?").trim().slice(0, 2).toUpperCase()
-
   return (
     <div className="flex flex-col items-center gap-2 text-center">
       <div className="relative mb-3">
@@ -76,15 +74,9 @@ export function ProfileIdentity({ name, email, image, hasAvatar, verified }: Pro
           aria-label="Cambiar foto de perfil"
           className="relative block size-24 overflow-hidden rounded-full border-2 border-border bg-muted outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
         >
-          {image ? (
-            // Viene del storage de Convex (o del login social): no pasa por el optimizador.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="" className="size-full object-cover" />
-          ) : (
-            <span className="flex size-full items-center justify-center text-xl font-semibold text-brand-text">
-              {initials}
-            </span>
-          )}
+          {/* Sin foto, la misma de reemplazo que la app (assets/images/meets/avatar.jpg). */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={image ?? "/app/avatar.jpg"} alt="" className="size-full object-cover" />
           {pending && <span className="absolute inset-0 animate-pulse bg-black/55" aria-hidden />}
         </button>
         <span
@@ -145,7 +137,7 @@ export function ProfileIdentity({ name, email, image, hasAvatar, verified }: Pro
         </form>
       ) : (
         <div className="flex items-center gap-1.5">
-          <h1 className="text-2xl tracking-[-0.01em]">{name ?? "Sin nombre"}</h1>
+          <h1 className="text-[22px] leading-[26px]">{name ?? "Sin nombre"}</h1>
           {verified && (
             <HugeiconsIcon
               icon={CheckmarkBadge01Icon}

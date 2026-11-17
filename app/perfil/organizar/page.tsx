@@ -3,10 +3,8 @@ import { redirect } from "next/navigation"
 import { Cancel01Icon, Clock01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
-import { PageHeader } from "@/components/page-header"
+import { ScreenHeader } from "@/components/app/ui"
 import { OrganizerRequestForm } from "@/components/profile/organizer-request-form"
-import { SiteFooter } from "@/components/site-footer"
-import { SiteHeader } from "@/components/site-header"
 import { getViewer, isPublisher, query, type PublisherRequest } from "@/lib/convex"
 import { loginUrl, pageToken } from "@/lib/session"
 
@@ -26,10 +24,9 @@ export default async function OrganizarPage() {
   const request = await query<PublisherRequest>("publisherRequests:mine", {}, token)
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <SiteHeader />
-      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-8 px-5 pt-8 pb-16 sm:px-8">
-        <PageHeader eyebrow="Organizadores" title="Organizar encuentros" />
+    <div className="flex min-h-dvh flex-col">
+      <ScreenHeader title="Organizar" fallback="/perfil" />
+      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-6 px-4 pb-[calc(env(safe-area-inset-bottom)+2rem)]">
 
         {request?.status === "pending" ? (
           <Status icon={Clock01Icon} title="Tu solicitud está en revisión">
@@ -50,7 +47,6 @@ export default async function OrganizarPage() {
           </>
         )}
       </main>
-      <SiteFooter />
     </div>
   )
 }
@@ -67,7 +63,7 @@ function Status({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex items-start gap-4 rounded-3xl border border-border bg-card p-5">
+    <div className="flex items-start gap-4 rounded-[16px] border border-border bg-card p-4">
       <HugeiconsIcon
         icon={icon}
         strokeWidth={1.8}
