@@ -1,5 +1,8 @@
 import { cache } from "react"
 
+import { UY_BOUNDS } from "@/lib/maps"
+import type { SearchRadius } from "@/lib/search-radius"
+
 /**
  * Convex (el backend de la app mobile) por su API HTTP, sin el SDK: la web sólo necesita un par
  * de funciones públicas, del lado del server.
@@ -93,6 +96,8 @@ export type Viewer = {
   hasAvatar: boolean
   hasPassword: boolean
   role: Role
+  /** Rango de "Cerca tuyo" (lib/search-radius.ts). */
+  searchRadius: SearchRadius
   /** Categorías que le gustan, para ordenar "Para vos" en Inicio. */
   interests: string[]
 }
@@ -143,6 +148,57 @@ export async function listUpcomingEvents(max = 100): Promise<{ events: GriddEven
     cursor = result.continueCursor
   }
   return { events, now }
+}
+
+const DAY = 24 * 60 * 60 * 1000
+
+/**
+ * Eventos para el mapa (`events.listInBounds`, como `useMapEvents` en la app): los publicados en todo
+ * Uruguay que todavía no terminaron. Arranca una semana atrás porque un evento puede durar hasta 7 días.
+ */
+export async function listMapEvents(): Promise<{ events: GriddEvent[]; now: number }> {
+  const now = Date.now()
+  const from = now - 7 * DAY
+  const events = await query<GriddEvent[]>("events:listInBounds", { ...UY_BOUNDS, from, to: from + 90 * DAY })
+  return { events: events.filter((e) => e.endsAt >= now).sort((a, b) => a.startsAt - b.startsAt), now }
+}
+
+/** Un auto del garage (`cars.listMine`). */
+export type Car = {
+  _id: string
+  make: string
+  model: string
+  year?: number
+  version?: string
+  isModified?: boolean
+}
+
+/** "Volkswagen Saveiro G5", como `carTitle` en la app. */
+export const carTitle = (car: Pick<Car, "make" | "model" | "version">) =>
+  [car.make, car.model, car.version].filter(Boolean).join(" ")
+
+/** Quién va a un evento (`attendance.list`). */
+export type Attendee = {
+  _id: string
+  name: string | null
+  image: string | null
+  car: { make: string; model: string; version: string | null; year: number | null } | null
+}
+
+/** "Subaru WRX STI 2008": el auto de un anotado en una línea. */
+export const attendeeCar = (car: NonNullable<Attendee["car"]>) =>
+  [car.make, car.model, car.version, car.year].filter(Boolean).join(" ")
+
+/** Perfil público de un organizador (`organizers.get`). */
+export type OrganizerProfile = {
+  _id: string
+  name: string | null
+  image: string | null
+  verified: boolean
+  followerCount: number
+  isFollowing: boolean
+  upcoming: GriddEvent[]
+  past: GriddEvent[]
 }
 
 /** Las mismas etiquetas que la app (mobile/src/services/events.ts). */
