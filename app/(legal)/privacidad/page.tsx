@@ -21,6 +21,7 @@ export default function PrivacidadPage() {
     <LegalShell
       title="Política de privacidad"
       description="Qué guardamos, para qué, y cómo pedís que lo borremos."
+      updatedAt="17 de noviembre de 2026"
     >
       <Prose>
         <h2>1. Quién trata tus datos</h2>
@@ -85,8 +86,9 @@ export default function PrivacidadPage() {
           </li>
           <li>
             <strong>Anuncios:</strong> la app muestra anuncios de Google AdMob,
-            que usan el identificador de publicidad de tu teléfono. El detalle
-            está en la sección 6.
+            que usan el identificador de publicidad de tu teléfono, y este
+            sitio muestra anuncios de Google AdSense, que usan cookies. El
+            detalle está en las secciones 6 y 9.
           </li>
         </ul>
         <p>
@@ -158,8 +160,8 @@ export default function PrivacidadPage() {
             <strong>Google o Apple:</strong> sólo si elegís entrar con ellos.
           </li>
           <li>
-            <strong>Google AdMob:</strong> los anuncios de la app (ver la
-            sección 6).
+            <strong>Google AdMob y Google AdSense:</strong> los anuncios de la
+            app y de este sitio (ver la sección 6).
           </li>
         </ul>
         <p>
@@ -172,6 +174,7 @@ export default function PrivacidadPage() {
         </p>
 
         <h2>6. Anuncios</h2>
+        <h3>En la app</h3>
         <p>
           Gridd es gratis porque la app muestra anuncios de Google AdMob: un
           banner arriba de algunas pantallas y algunas tarjetas marcadas como
@@ -198,9 +201,49 @@ export default function PrivacidadPage() {
         <p>
           Si estás en una región donde la ley lo exige, la app te pide el
           consentimiento la primera vez y podés cambiarlo después desde Perfil.
+        </p>
+
+        <h3>En este sitio (gridd.app)</h3>
+        <p>
+          El sitio muestra anuncios de Google AdSense en los mismos lugares que
+          la app: un banner arriba de algunas pantallas y tarjetas marcadas como
+          &ldquo;Publicidad&rdquo; entre los eventos.
+        </p>
+        <p>
+          Google y sus socios publicitarios, como proveedores externos, usan
+          cookies para mostrar anuncios según tus visitas anteriores a este y a
+          otros sitios. La cookie de publicidad de Google les permite mostrarte
+          anuncios basados en tus visitas a Gridd y a otros sitios de internet.
+          Gridd no le pasa a Google tu mail, tu nombre ni lo que hacés en tu
+          cuenta.
+        </p>
+        <ul>
+          <li>
+            Podés desactivar los anuncios personalizados de Google en{" "}
+            <a href="https://adssettings.google.com">adssettings.google.com</a>
+            .
+          </li>
+          <li>
+            Podés desactivar las cookies de otros proveedores de publicidad
+            personalizada en{" "}
+            <a href="https://www.aboutads.info/choices/">
+              aboutads.info/choices
+            </a>
+            .
+          </li>
+          <li>
+            Si estás en una región donde la ley lo exige, el sitio te pide el
+            consentimiento antes de usar cookies de publicidad.
+          </li>
+        </ul>
+        <p>
           Cómo usa Google estos datos:{" "}
           <a href="https://policies.google.com/technologies/ads">
             policies.google.com/technologies/ads
+          </a>{" "}
+          y{" "}
+          <a href="https://policies.google.com/technologies/partner-sites">
+            policies.google.com/technologies/partner-sites
           </a>
           .
         </p>
@@ -248,8 +291,13 @@ export default function PrivacidadPage() {
           cookies propias, sólo para mantenerte conectado: no las lee nadie más
           y se borran al cerrar sesión o a los 30 días sin uso. Si no entrás,
           el sitio no usa cookies de sesión. Las métricas de uso del sitio, si las
-          hay, son anónimas y agregadas: no te siguen entre sitios ni apps. Los
-          anuncios de la app se explican en la sección 6.
+          hay, son anónimas y agregadas: no te siguen entre sitios ni apps.
+        </p>
+        <p>
+          Los anuncios de Google AdSense del sitio sí usan cookies de terceros
+          (de Google y sus socios publicitarios) para mostrar y medir anuncios,
+          y, si lo permitís, para personalizarlos. Cómo desactivarlas está en la
+          sección 6.
         </p>
 
         <h2>10. Menores</h2>
