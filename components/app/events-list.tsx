@@ -3,9 +3,11 @@
 import { useState } from "react"
 import { Calendar03Icon, Search01Icon } from "@hugeicons/core-free-icons"
 
+import { FeedAd } from "@/components/ads"
 import { EventRow } from "@/components/app/event-cards"
 import { chipClass, EmptyState, Icon } from "@/components/app/ui"
 import { KIND_LABELS, type GriddEvent } from "@/lib/convex"
+import { withAdSlots } from "@/lib/ads"
 import { filterEvents } from "@/lib/event-filters"
 
 const KINDS = Object.keys(KIND_LABELS)
@@ -55,7 +57,14 @@ export function EventsList({ events, now }: { events: GriddEvent[]; now: number 
                 : "No hay encuentros por ahora."}
           </EmptyState>
         ) : (
-          visible.map((event) => <EventRow key={event._id} event={event} now={now} />)
+          // Tarjetas de anuncio intercaladas (después del 5.º evento y una cada 6), como en la app.
+          withAdSlots([visible])[0].map((item) =>
+            item.kind === "ad" ? (
+              <FeedAd key={item.key} variant="row" />
+            ) : (
+              <EventRow key={item.event._id} event={item.event} now={now} />
+            )
+          )
         )}
       </main>
     </>

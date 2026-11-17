@@ -6,6 +6,8 @@ import { site } from "@/lib/site";
 import { InlineScript } from "@/components/inline-script";
 import { INTRO_SCRIPT } from "@/components/landing/intro-script";
 import { THEME_CANVAS, THEME_SCRIPT } from "@/lib/theme";
+import { AdsProvider } from "@/components/ads";
+import { adsConfigFromEnv } from "@/lib/ads";
 
 // Las mismas fuentes que la app mobile: Chivo para títulos, Hanken Grotesk para el resto.
 const chivo = Chivo({
@@ -71,6 +73,7 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const ads = adsConfigFromEnv();
   return (
     // `suppressHydrationWarning` porque los scripts inline (tema y landing) tocan el <html> mientras
     // el browser parsea, antes de que React hidrate: `data-theme` y `.js-anim`. Sin esto React ve
@@ -83,8 +86,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <InlineScript html={THEME_SCRIPT} />
         <InlineScript html={INTRO_SCRIPT} />
+        {/* AdSense: va siempre (con él Google verifica el sitio); los anuncios salen sólo donde hay
+            una unidad configurada (components/ads.tsx). Dejar los "anuncios automáticos" apagados en
+            AdSense, así no aparecen en otros lugares. */}
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ads.client}`}
+          crossOrigin="anonymous"
+        />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AdsProvider config={ads}>{children}</AdsProvider>
+      </body>
     </html>
   );
 }

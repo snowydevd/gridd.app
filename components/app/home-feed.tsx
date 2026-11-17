@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 
+import { FeedAd } from "@/components/ads"
 import { EventGrid, EventRow, FeaturedCard } from "@/components/app/event-cards"
 import { SectionHeader, text } from "@/components/app/ui"
 import type { GriddEvent } from "@/lib/convex"
@@ -45,7 +46,7 @@ export function HomeFeed({
               </Link>
             }
           />
-          <EventGrid events={forYou} now={now} />
+          <EventGrid events={forYou} now={now} slot={<FeedAd variant="wide" />} />
         </section>
       )}
 

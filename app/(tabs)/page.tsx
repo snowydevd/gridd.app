@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Calendar03Icon } from "@hugeicons/core-free-icons"
 
+import { TopBanner } from "@/components/ads"
 import { AccountCards } from "@/components/app/account-cards"
 import { HomeFeed } from "@/components/app/home-feed"
 import { ProfilePill } from "@/components/app/home-header"
@@ -44,6 +45,8 @@ export default async function HomePage() {
   const going = attending.filter((e) => e.endsAt >= now)
 
   return (
+    <>
+    <TopBanner />
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-8">
       <h1 className="sr-only">Próximos encuentros fierreros en Uruguay</h1>
       <header className="mb-6 flex items-center justify-between">
@@ -95,5 +98,6 @@ export default async function HomePage() {
         ))}
       </nav>
     </main>
+    </>
   )
 }
