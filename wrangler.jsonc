@@ -15,9 +15,9 @@
 		// Anuncios de AdSense (lib/ads.ts). Cada lugar aparece cuando su unidad tiene ID: crear en
 		// AdSense un anuncio de display (banner) y uno in-feed (con su layout key) y pegarlos acá.
 		"ADS_ENABLED": "true",
-		"ADSENSE_BANNER_SLOT": "",
-		"ADSENSE_FEED_SLOT": "",
-		"ADSENSE_FEED_LAYOUT_KEY": ""
+		"ADSENSE_BANNER_SLOT": "6086354512",
+		"ADSENSE_FEED_SLOT": "6357817257",
+		"ADSENSE_FEED_LAYOUT_KEY": "-g0+18-3f-ju+1ch"
 	},
 	"observability": {
 		"enabled": true
