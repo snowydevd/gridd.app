@@ -6,9 +6,10 @@ import { CarForm } from "@/components/app/car-form"
 import { buttonClass, ScreenHeader, text } from "@/components/app/ui"
 import { getViewer, query, type Car } from "@/lib/convex"
 import { loginUrl, pageToken } from "@/lib/session"
+import { vehicleNoun, vehicleType } from "@/lib/vehicle-icons"
 import { cn } from "@/lib/utils"
 
-export const metadata: Metadata = { title: "Auto", robots: { index: false } }
+export const metadata: Metadata = { title: "Vehículo", robots: { index: false } }
 
 /** `/perfil/garage/nuevo` agrega un auto; `/perfil/garage/<id>` edita uno (mobile/src/app/garage/[id].tsx). */
 export default async function CarPage({ params }: PageProps<"/perfil/garage/[id]">) {
@@ -23,10 +24,10 @@ export default async function CarPage({ params }: PageProps<"/perfil/garage/[id]
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <ScreenHeader title={isNew ? "Nuevo auto" : "Editar auto"} icon="close" fallback="/perfil/garage" />
+      <ScreenHeader title={isNew ? "Nuevo vehículo" : `Editar ${car ? vehicleNoun(vehicleType(car)) : "vehículo"}`} icon="close" fallback="/perfil/garage" />
       {!isNew && !car ? (
         <main className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-          <p className={cn(text.body, "text-muted-foreground")}>Este auto ya no está en tu garage.</p>
+          <p className={cn(text.body, "text-muted-foreground")}>Este vehículo ya no está en tu garage.</p>
           <Link href="/perfil/garage" className={buttonClass("secondary")}>
             Volver
           </Link>

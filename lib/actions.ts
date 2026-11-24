@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 
 import { withSession, type ActionResult } from "@/lib/authed"
-import { action, KIND_LABELS, mutation } from "@/lib/convex"
+import { action, KIND_LABELS, mutation, type VehicleType } from "@/lib/convex"
 import { clearSession, getToken } from "@/lib/session"
 
 /**
@@ -43,9 +43,25 @@ export async function setInterests(input: { interests: string[] }): Promise<Acti
   )
 }
 
-export type CarInput = { make: string; model: string; year: number; version?: string; isModified: boolean }
+export type CarInput = { type: VehicleType; make: string; model: string; year: number; version?: string; isModified: boolean }
 
-/** Agrega (`cars.add`) o reemplaza (`cars.update`) un auto. El catálogo lo valida Convex. */
+const isVehicleType = (value: unknown): value is VehicleType => value === "car" || value === "motorcycle"
+
+/**
+ * Marcas (sin `make`) o modelos de una marca de la API de NHTSA (`vehicleApi.makes` / `.models`), para
+ * sumarle al catálogo local del garage. Si falla devuelve una lista vacía: el formulario sigue con el
+ * catálogo local y deja escribir a mano.
+ */
+export async function vehicleApiNames(input: { type: VehicleType; make?: string }): Promise<string[]> {
+  if (!isVehicleType(input?.type)) return []
+  if (input.make !== undefined && (typeof input.make !== "string" || input.make.length > 40)) return []
+  const token = await getToken()
+  if (!token) return []
+  const args = input.make === undefined ? { type: input.type } : { type: input.type, make: input.make }
+  return action<string[]>(input.make === undefined ? "vehicleApi:makes" : "vehicleApi:models", args, token).catch(() => [])
+}
+
+/** Agrega (`cars.add`) o reemplaza (`cars.update`) un auto o moto. Convex valida el texto y el año. */
 export async function saveCar(input: CarInput & { id?: string }): Promise<ActionResult> {
   if (
     typeof input?.make !== "string" ||
@@ -56,6 +72,7 @@ export async function saveCar(input: CarInput & { id?: string }): Promise<Action
     return invalid("Elegí marca, modelo y año.")
   }
   const car = {
+    type: isVehicleType(input.type) ? input.type : "car",
     make: input.make,
     model: input.model,
     year: input.year,
