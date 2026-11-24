@@ -25,9 +25,12 @@ import { cn } from "@/lib/utils"
 
 const STEPS = ["Evento", "Cuándo", "Dónde", "Portada"] as const
 const REVIEW = STEPS.length
-/** Ancho al que se achica la portada, como `COVER_WIDTH` en la app; 16:10 como el recorte del picker. */
+/**
+ * La portada se sube entera, con su forma (sin recorte), achicada como en la app: a `COVER_WIDTH` de
+ * ancho, o por alto si pasaría `COVER_MAX_HEIGHT` (una historia 9:16 a ese ancho).
+ */
 const COVER_WIDTH = 1280
-const COVER_ASPECT = 16 / 10
+const COVER_MAX_HEIGHT = 2276
 const KINDS = Object.entries(KIND_LABELS)
 
 const TZ = "America/Montevideo"
@@ -138,16 +141,14 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
     if (!kind || startsAt === null || !coords || publishing) return
     setError(null)
     startPublish(async () => {
-      let imageId: string | undefined
+      let image: { imageId: string; imageWidth: number; imageHeight: number } | undefined
       if (cover?.kind === "new") {
         const url = await coverUploadUrl()
         if (onAuth(url)) return
         if (!url.ok) return setError(url.reason === "error" ? url.message : null)
         try {
-          imageId = await uploadImage(url.value, cover.file, {
-            width: COVER_WIDTH,
-            aspect: COVER_ASPECT,
-          })
+          const uploaded = await uploadImage(url.value, cover.file, { maxWidth: COVER_WIDTH, maxHeight: COVER_MAX_HEIGHT })
+          image = { imageId: uploaded.storageId, imageWidth: uploaded.width, imageHeight: uploaded.height }
         } catch (e) {
           console.error("[panel] subir portada falló:", e)
           return setError("No pudimos subir la portada. Probá con otra imagen.")
@@ -172,7 +173,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
           ...fields,
           id: initial._id,
           slug: initial.slug,
-          cover: imageId ? { imageId } : cover === null && initial.imageUrl ? "remove" : "keep",
+          cover: image ?? (cover === null && initial.imageUrl ? "remove" : "keep"),
         })
         if (onAuth(result)) return
         if (!result.ok) return setError(result.reason === "error" ? result.message : null)
@@ -180,7 +181,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
         return
       }
 
-      const result = await createEvent({ ...fields, imageId })
+      const result = await createEvent({ ...fields, ...image })
       if (onAuth(result)) return
       if (!result.ok) return setError(result.reason === "error" ? result.message : null)
       router.replace(`/e/${result.value}`)
@@ -477,13 +478,14 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
               onClick={() => fileInput.current?.click()}
               aria-label={coverSrc ? "Cambiar portada" : "Subir portada"}
               className={cn(
-                "relative flex aspect-[16/10] w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-[16px] bg-card outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                !coverSrc && "border-2 border-dashed border-border"
+                "relative flex w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-[16px] bg-card outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                !coverSrc && "aspect-[16/10] border-2 border-dashed border-border"
               )}
             >
               {coverSrc ? (
+                // El flyer entero, con su forma: se sube así, sin recorte.
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={coverSrc} alt="" className="absolute inset-0 size-full object-cover" />
+                <img src={coverSrc} alt="" className="max-h-[60dvh] w-full object-contain" />
               ) : (
                 <>
                   <HugeiconsIcon
@@ -544,8 +546,13 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
             <StepTitle>{initial ? "Revisá los cambios" : "Revisá tu evento"}</StepTitle>
             <div className="relative flex h-80 flex-col justify-end overflow-hidden rounded-[16px] bg-card">
               {coverSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={coverSrc} alt="" className="absolute inset-0 size-full object-cover" />
+                <>
+                  {/* Entero sobre el mismo flyer desenfocado, como en la ficha. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={coverSrc} alt="" aria-hidden className="absolute inset-0 size-full scale-110 object-cover blur-xl" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={coverSrc} alt="" className="absolute inset-0 size-full object-contain" />
+                </>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-muted">
                   <Wordmark className="h-8 text-muted-foreground" mono />

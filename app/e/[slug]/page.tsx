@@ -2,7 +2,14 @@ import type { Metadata } from "next"
 import { headers } from "next/headers"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowRight01Icon, Calendar03Icon, Location01Icon, UserGroupIcon } from "@hugeicons/core-free-icons"
+import {
+  ArrowRight01Icon,
+  Calendar03Icon,
+  HandHeartIcon,
+  Location01Icon,
+  Ticket01Icon,
+  UserGroupIcon,
+} from "@hugeicons/core-free-icons"
 import type { IconSvgElement } from "@hugeicons/react"
 
 import { EventActionBar, EventPlaceMap, EventTopBar } from "@/components/app/event-detail"
@@ -10,6 +17,7 @@ import { Card, Fade, Icon, Tag, text } from "@/components/app/ui"
 import { getEvent, getEventAs, getOrganizer, getViewer, KIND_LABELS, query, type Attendee, type GriddEvent } from "@/lib/convex"
 import { DEFAULT_COVER, whenLabel } from "@/lib/event-format"
 import { requestTime } from "@/lib/event-time"
+import { aspectOf, clampAspect } from "@/lib/flyer-layout"
 import { pageToken } from "@/lib/session"
 import { site } from "@/lib/site"
 import { cn } from "@/lib/utils"
@@ -102,21 +110,34 @@ export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
     shareWhen: `${short.day} ${short.time} hs`,
   }
   const faces = attendees?.slice(0, MAX_FACES) ?? []
+  // Sin `entryCost` la entrada es libre (o el evento es anterior a este campo): no se dice nada.
+  const price = event.paidEvent && event.entryCost ? `$${event.entryCost.toLocaleString("es-UY")}` : null
+  const cover = event.imageUrl ?? DEFAULT_COVER
 
   return (
     <div className="relative min-h-dvh pb-[calc(env(safe-area-inset-bottom)+6.5rem)]">
-      <div className="relative mx-auto h-[340px] max-w-xl bg-card sm:mt-4 sm:overflow-hidden sm:rounded-[16px]">
+      {/* El flyer entero, a todo el ancho y con su forma, hasta el 70% del alto de pantalla. Si se pasa
+          (o la forma está fuera del rango), entero sobre el mismo flyer desenfocado. */}
+      <div
+        className="relative mx-auto max-h-[70dvh] w-full max-w-xl overflow-hidden bg-card sm:mt-4 sm:rounded-[16px]"
+        style={{ aspectRatio: clampAspect(aspectOf(event.imageWidth, event.imageHeight)) }}
+      >
         {/* Viene del storage de Convex: no pasa por el optimizador de imágenes. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={event.imageUrl ?? DEFAULT_COVER} alt="" className="absolute inset-0 size-full object-cover" />
-        <Fade from="45%" />
+        <img src={cover} alt="" aria-hidden className="absolute inset-0 size-full scale-110 object-cover blur-xl" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={cover} alt="" className="absolute inset-0 size-full object-contain" />
+        {/* Funde con el detalle sólo en el borde: más arriba taparía lo que dice el flyer. */}
+        <Fade from="calc(100% - 72px)" />
         <EventTopBar event={detail} signedIn={signedIn} isOrganizer={isOrganizer} isOpen={isOpen} />
       </div>
 
-      <main className="relative mx-auto -mt-8 flex max-w-xl flex-col gap-3 px-4">
+      <main className="relative mx-auto mt-4 flex max-w-xl flex-col gap-3 px-4">
         <div className="flex flex-wrap gap-2">
           {isToday && !cancelled && <Tag tone="accent">Hoy</Tag>}
           <Tag>{KIND_LABELS[event.kind] ?? "Encuentro"}</Tag>
+          {price && <Tag>{price}</Tag>}
+          {event.isSolidary && <Tag tone="accent">Solidario</Tag>}
           {cancelled && <Tag className="border-destructive text-destructive">Cancelado</Tag>}
           {ended && <Tag>Terminó</Tag>}
           {event.status === "hidden" && <Tag className="border-destructive text-destructive">Oculto por moderación</Tag>}
@@ -162,6 +183,18 @@ export default async function EventPage({ params }: PageProps<"/e/[slug]">) {
           <Fact icon={Calendar03Icon} title={day} subtitle={hours} />
           <div className="h-px bg-border" />
           <Fact icon={Location01Icon} title={event.placeName} subtitle={event.placeName} />
+          {price && (
+            <>
+              <div className="h-px bg-border" />
+              <Fact icon={Ticket01Icon} title={`Entrada ${price}`} subtitle="Evento con entrada paga" />
+            </>
+          )}
+          {event.isSolidary && (
+            <>
+              <div className="h-px bg-border" />
+              <Fact icon={HandHeartIcon} title="Evento solidario" subtitle="Consultá con el organizador cómo colaborar" />
+            </>
+          )}
         </Card>
 
         <EventPlaceMap event={detail} mapsKey={process.env.GOOGLE_MAPS_API_KEY} />

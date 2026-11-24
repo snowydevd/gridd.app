@@ -67,6 +67,13 @@ export type GriddEvent = {
   status: "published" | "cancelled" | "hidden"
   attendeeCount: number
   imageUrl: string | null
+  /** Medidas de la portada guardada (px); faltan en las viejas que el backfill no pudo leer. */
+  imageWidth?: number
+  imageHeight?: number
+  paidEvent?: boolean
+  /** Precio de la entrada (pesos); sólo si `paidEvent`. */
+  entryCost?: number
+  isSolidary?: boolean
   organizer: { _id: string; name: string | null; image: string | null } | null
   /** Última edición (ms); la usa el sitemap. */
   updatedAt?: number

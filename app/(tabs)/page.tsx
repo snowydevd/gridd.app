@@ -4,17 +4,18 @@ import { Calendar03Icon } from "@hugeicons/core-free-icons"
 
 import { TopBanner } from "@/components/ads"
 import { AccountCards } from "@/components/app/account-cards"
+import { InfiniteFlyerGrid } from "@/components/app/flyers"
 import { HomeFeed } from "@/components/app/home-feed"
 import { ProfilePill } from "@/components/app/home-header"
-import { buttonClass, EmptyState } from "@/components/app/ui"
+import { buttonClass, EmptyState, SectionHeader } from "@/components/app/ui"
 import { Wordmark } from "@/components/brand/wordmark"
 import { getViewer, isPublisher, listUpcomingEvents, query, type Car, type GriddEvent } from "@/lib/convex"
 import { legalNav } from "@/lib/legal"
 import { pageToken } from "@/lib/session"
 import { site } from "@/lib/site"
 
-// Inicio, como la pestaña de la app (mobile/src/app/(tabs)/index.tsx): el destacado, "Para vos", "Vas a
-// ir" y "Completá tu cuenta". En iPhone, mientras no esté la app, esto es la app.
+// Inicio, como la pestaña de la app (mobile/src/app/(tabs)/index.tsx): el carrusel "Para vos", "Vas a
+// ir", "Completá tu cuenta" y "Todos los eventos" en grilla de flyers. En iPhone, mientras no esté la app, esto es la app.
 export const metadata: Metadata = {
   title: { absolute: "GRIDD — Encuentros fierreros de Uruguay" },
   description: site.description,
@@ -29,8 +30,8 @@ export const metadata: Metadata = {
   },
 }
 
-/** Cuántos trae Inicio: el destacado y la base de "Para vos" (HOME_EVENTS en la app). */
-const HOME_EVENTS = 20
+/** Cuántos trae Inicio: la base de "Para vos" y "Todos los eventos", que los va mostrando al scrollear. */
+const HOME_EVENTS = 100
 
 export default async function HomePage() {
   const token = await pageToken("/")
@@ -86,6 +87,13 @@ export default async function HomePage() {
         hasCar={cars.length > 0}
         hasJoinedAny={attending.length > 0}
       />
+
+      {events.length > 0 && (
+        <section className="mt-8">
+          <SectionHeader title="Todos los eventos" />
+          <InfiniteFlyerGrid events={events} now={now} />
+        </section>
+      )}
 
       <nav aria-label="Sobre Gridd" className="mt-12 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
         <Link href="/nosotros" className="hover:text-foreground">
