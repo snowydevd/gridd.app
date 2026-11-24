@@ -1,17 +1,15 @@
 "use client"
 
-import Link from "next/link"
-
-import { FeedAd } from "@/components/ads"
-import { EventGrid, EventRow, FeaturedCard } from "@/components/app/event-cards"
-import { SectionHeader, text } from "@/components/app/ui"
+import { EventRow } from "@/components/app/event-cards"
+import { FlyerCarousel } from "@/components/app/flyers"
+import { SectionHeader } from "@/components/app/ui"
 import type { GriddEvent } from "@/lib/convex"
-import { cn } from "@/lib/utils"
+import { whenLabel } from "@/lib/event-format"
 
 const FOR_YOU_SIZE = 5
 
 /**
- * El destacado, "Para vos" y "Vas a ir" de Inicio. "Para vos" ordena primero las categorías que le
+ * El carrusel "Para vos" (el destacado primero, con "Hoy" o "Próximo") y "Vas a ir" de Inicio. "Para vos" ordena primero las categorías que le
  * interesan. En la web no se filtra por distancia ("Cerca tuyo" de la app): pediría el permiso de
  * ubicación de entrada, así que se muestran todos.
  */
@@ -34,19 +32,14 @@ export function HomeFeed({
 
   return (
     <>
-      {featured && <FeaturedCard event={featured} now={now} />}
-
-      {forYou.length > 0 && (
-        <section className="mt-8">
-          <SectionHeader
-            title="Para vos"
-            action={
-              <Link href="/eventos" className={cn(text.label, "text-muted-foreground hover:text-foreground")}>
-                Ver todo
-              </Link>
-            }
+      {featured && (
+        <section>
+          <SectionHeader title="Para vos" />
+          <FlyerCarousel
+            events={[featured, ...forYou]}
+            now={now}
+            badge={(e, i) => (i === 0 ? { label: whenLabel(e, now).isToday ? "Hoy" : "Próximo", accent: true } : undefined)}
           />
-          <EventGrid events={forYou} now={now} slot={<FeedAd variant="wide" />} />
         </section>
       )}
 

@@ -22,7 +22,14 @@ export type EventFormInput = {
   placeName: string
   lat: number
   lon: number
+  /** Hay que pagar entrada; el precio (pesos, entero) va en `entryCost`. */
+  paidEvent: boolean
+  entryCost?: number
+  isSolidary: boolean
 }
+
+/** Tope del precio de la entrada (`MAX_ENTRY_COST` en mobile/convex/lib/validation.ts). */
+const MAX_ENTRY_COST = 1_000_000
 
 type ConvexEventFields = {
   title: string
@@ -34,6 +41,9 @@ type ConvexEventFields = {
   placeName: string
   lat: number
   lon: number
+  paidEvent: boolean
+  entryCost?: number
+  isSolidary: boolean
 }
 
 /** Pasa el formulario a los campos de `events.create` / `events.update`. Lo demás lo valida Convex. */
@@ -56,6 +66,12 @@ function toFields(input: EventFormInput): ConvexEventFields | string {
     endsAt = toTimestamp(input.day, input.end ?? "") ?? undefined
     if (endsAt === undefined) return 'Elegí la hora de fin o marcá "Sin hora de fin".'
   }
+  const paidEvent = input.paidEvent === true
+  // Con entrada libre no se manda precio: Convex borra uno que haya quedado de antes.
+  const entryCost = paidEvent ? input.entryCost : undefined
+  if (paidEvent && (!Number.isInteger(entryCost) || entryCost! < 1 || entryCost! > MAX_ENTRY_COST)) {
+    return "El precio de la entrada tiene que ser un número entero entre 1 y 1.000.000."
+  }
   return {
     title: input.title,
     description: input.description,
@@ -66,6 +82,9 @@ function toFields(input: EventFormInput): ConvexEventFields | string {
     placeName: input.placeName,
     lat: input.lat,
     lon: input.lon,
+    paidEvent,
+    entryCost,
+    isSolidary: input.isSolidary === true,
   }
 }
 
@@ -77,12 +96,12 @@ export async function coverUploadUrl(): Promise<ActionResult<string>> {
 }
 
 /** Publica un evento (`events.create`). Devuelve el slug para abrir la ficha. */
-export async function createEvent(input: EventFormInput & { imageId?: string }): Promise<ActionResult<string>> {
+export async function createEvent(input: EventFormInput & Partial<CoverInput>): Promise<ActionResult<string>> {
   const fields = toFields(input)
   if (typeof fields === "string") return invalid(fields)
-  const imageId = typeof input.imageId === "string" ? input.imageId : undefined
+  const image = coverFields(input)
   const result = await withSession("panel:crear", "No pudimos publicar. " + RETRY, async (token) => {
-    const { slug } = await mutation<{ id: string; slug: string }>("events:create", { ...fields, imageId }, token)
+    const { slug } = await mutation<{ id: string; slug: string }>("events:create", { ...fields, ...image }, token)
     return slug
   })
   if (result.ok) {
@@ -92,12 +111,25 @@ export async function createEvent(input: EventFormInput & { imageId?: string }):
   return result
 }
 
+/** Una portada recién subida, con sus medidas (px) para la grilla de flyers. */
+type CoverInput = { imageId: string; imageWidth: number; imageHeight: number }
+
+const isSize = (n: unknown): n is number => typeof n === "number" && Number.isInteger(n) && n > 0
+
+/** El id de la portada y sus medidas si llegan bien; medidas raras se descartan (en el backend son opcionales). */
+function coverFields(input: Partial<CoverInput> | undefined) {
+  if (typeof input?.imageId !== "string") return {}
+  return isSize(input.imageWidth) && isSize(input.imageHeight)
+    ? { imageId: input.imageId, imageWidth: input.imageWidth, imageHeight: input.imageHeight }
+    : { imageId: input.imageId }
+}
+
 /**
  * Edita un evento propio (`events.update`). `cover`: `"keep"` deja la portada, `"remove"` la quita y
  * un id de storage pone una nueva. El slug no cambia, así los links compartidos siguen andando.
  */
 export async function updateEvent(
-  input: EventFormInput & { id: string; slug: string; cover: "keep" | "remove" | { imageId: string } }
+  input: EventFormInput & { id: string; slug: string; cover: "keep" | "remove" | CoverInput }
 ): Promise<ActionResult> {
   if (typeof input?.id !== "string" || typeof input.slug !== "string") return invalid("No encontramos el evento.")
   const fields = toFields(input)
@@ -105,8 +137,8 @@ export async function updateEvent(
   const cover =
     input.cover === "remove"
       ? { removeImage: true }
-      : typeof input.cover === "object" && typeof input.cover?.imageId === "string"
-        ? { imageId: input.cover.imageId }
+      : typeof input.cover === "object"
+        ? coverFields(input.cover)
         : {}
   const result = await withSession("panel:editar", "No pudimos guardar los cambios. " + RETRY, async (token) => {
     await mutation("events:update", { id: input.id, ...fields, ...cover }, token)

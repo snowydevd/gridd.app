@@ -1,9 +1,10 @@
 import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 
-import { ScreenHeader, text } from "@/components/app/ui"
+import { Icon, ScreenHeader, text } from "@/components/app/ui"
 import { attendeeCar, ConvexCallError, getEventAs, getViewer, query, type Attendee } from "@/lib/convex"
 import { loginUrl, pageToken } from "@/lib/session"
+import { VEHICLE_ICON, vehicleType } from "@/lib/vehicle-icons"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = { title: "Quiénes van", robots: { index: false } }
@@ -40,7 +41,12 @@ export default async function AsistentesPage({ params }: PageProps<"/e/[slug]/as
                 <img src={person.image ?? "/app/avatar.jpg"} alt="" className="size-11 rounded-full object-cover" />
                 <div className="flex min-w-0 flex-1 flex-col">
                   <span className={cn(text.heading, "truncate")}>{person.name ?? "Sin nombre"}</span>
-                  {person.car && <span className={cn(text.caption, "truncate text-muted-foreground")}>{attendeeCar(person.car)}</span>}
+                  {person.car && (
+                    <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
+                      <Icon icon={VEHICLE_ICON[vehicleType(person.car)]} className="size-3.5 shrink-0" />
+                      <span className={cn(text.caption, "truncate")}>{attendeeCar(person.car)}</span>
+                    </span>
+                  )}
                 </div>
               </li>
             ))}

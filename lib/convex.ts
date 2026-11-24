@@ -67,6 +67,13 @@ export type GriddEvent = {
   status: "published" | "cancelled" | "hidden"
   attendeeCount: number
   imageUrl: string | null
+  /** Medidas de la portada guardada (px); faltan en las viejas que el backfill no pudo leer. */
+  imageWidth?: number
+  imageHeight?: number
+  paidEvent?: boolean
+  /** Precio de la entrada (pesos); sólo si `paidEvent`. */
+  entryCost?: number
+  isSolidary?: boolean
   organizer: { _id: string; name: string | null; image: string | null } | null
   /** Última edición (ms); la usa el sitemap. */
   updatedAt?: number
@@ -165,9 +172,12 @@ export async function listMapEvents(): Promise<{ events: GriddEvent[]; now: numb
   return { events: events.filter((e) => e.endsAt >= now).sort((a, b) => a.startsAt - b.startsAt), now }
 }
 
-/** Un auto del garage (`cars.listMine`). */
+export type VehicleType = "car" | "motorcycle"
+
+/** Un auto o moto del garage (`cars.listMine`). Sin `type` es un auto (los anteriores a las motos). */
 export type Car = {
   _id: string
+  type?: VehicleType
   make: string
   model: string
   year?: number
@@ -184,7 +194,7 @@ export type Attendee = {
   _id: string
   name: string | null
   image: string | null
-  car: { make: string; model: string; version: string | null; year: number | null } | null
+  car: { type?: VehicleType; make: string; model: string; version: string | null; year: number | null } | null
 }
 
 /** "Subaru WRX STI 2008": el auto de un anotado en una línea. */

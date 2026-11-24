@@ -1,16 +1,26 @@
-// Copia de mobile/convex/lib/vehicleCatalog.ts (el backend valida contra ese archivo): si cambia allá,
-// se copia acá. La web no puede importar del repo de la app.
+// Copia de mobile/convex/lib/vehicleCatalog.ts (allá tiene tests): si cambia allá, se copia acá. La web
+// no puede importar del repo de la app. Desde las motos el backend sólo hace una validación básica.
 /**
- * Catálogo de marcas y modelos para el garage del usuario.
+ * Catálogo local de marcas y modelos para el garage del usuario (autos y motos).
  *
+ * - Es la base curada para el mercado rioplatense; en la app se combina con lo que devuelve la API
+ *   de NHTSA (`convex/vehicleApi.ts`) y el usuario también puede escribir una marca/modelo a mano.
  * - `from`/`to`: años de fabricación del modelo (cualquier mercado). `to: null` = se sigue fabricando.
  * - Los rangos son aproximados y no marcan los huecos: un modelo discontinuado y relanzado
  *   (Supra, Bronco, HR-V...) va de la primera generación a hoy.
  * - Si falta algo, se agrega acá; los tests de `vehicleCatalog.test.ts` validan el formato.
  */
 
+export type VehicleType = "car" | "motorcycle";
 export type VehicleModel = { name: string; from: number; to: number | null };
 export type VehicleMake = { name: string; models: VehicleModel[] };
+
+export const VEHICLE_TYPES: VehicleType[] = ["car", "motorcycle"];
+
+/** Primer año que se puede elegir para un modelo que no está en el catálogo local. */
+export const MIN_YEAR = 1900;
+export const MAX_MAKE_LENGTH = 40;
+export const MAX_MODEL_LENGTH = 60;
 
 const m = (name: string, from: number, to: number | null = null): VehicleModel => ({ name, from, to });
 
@@ -499,8 +509,248 @@ export const VEHICLE_CATALOG: VehicleMake[] = [
   },
 ];
 
-export function findModel(make: string, model: string): VehicleModel | undefined {
-  return VEHICLE_CATALOG.find((x) => x.name === make)?.models.find((x) => x.name === model);
+export const MOTORCYCLE_CATALOG: VehicleMake[] = [
+  {
+    name: "Aprilia",
+    models: [m("RS 125", 1992), m("RS 457", 2024), m("RS 660", 2020), m("RSV4", 2009), m("Tuono", 2002)],
+  },
+  {
+    name: "Bajaj",
+    models: [
+      m("Avenger", 2005),
+      m("Dominar 250", 2020),
+      m("Dominar 400", 2016),
+      m("Pulsar 135", 2009),
+      m("Pulsar 200 NS", 2012),
+      m("Pulsar N250", 2021),
+      m("Pulsar RS 200", 2015),
+      m("Rouser 220", 2007),
+    ],
+  },
+  {
+    name: "Benelli",
+    models: [m("Leoncino 500", 2017), m("TNT 15", 2014), m("TNT 135", 2014), m("TNT 600", 2006), m("TRK 251", 2019), m("TRK 502", 2017)],
+  },
+  {
+    name: "Beta",
+    models: [m("Motard 2.0", 2018), m("RR 125", 2017), m("RR 300", 2013), m("Tempo 150", 2016)],
+  },
+  {
+    name: "BMW",
+    models: [
+      m("F 750 GS", 2018),
+      m("F 800 GS", 2008, 2018),
+      m("F 900 R", 2020),
+      m("G 310 GS", 2017),
+      m("G 310 R", 2016),
+      m("K 1600", 2011),
+      m("R 1200 GS", 2004, 2018),
+      m("R 1250 GS", 2018, 2024),
+      m("R 1300 GS", 2023),
+      m("R nineT", 2014),
+      m("S 1000 RR", 2009),
+    ],
+  },
+  {
+    name: "CFMoto",
+    models: [m("300 NK", 2019), m("450 MT", 2024), m("650 MT", 2012), m("650 NK", 2012), m("800 MT", 2021)],
+  },
+  {
+    name: "Corven",
+    models: [m("Energy 110", 2008), m("Hunter 150", 2009), m("Triax 150", 2014), m("Triax 250", 2015), m("TXR 250", 2014)],
+  },
+  {
+    name: "Ducati",
+    models: [
+      m("DesertX", 2022),
+      m("Diavel", 2011),
+      m("Hypermotard", 2007),
+      m("Monster", 1993),
+      m("Multistrada", 2003),
+      m("Panigale V2", 2020),
+      m("Panigale V4", 2018),
+      m("Scrambler", 2015),
+      m("Streetfighter", 2009),
+    ],
+  },
+  {
+    name: "Gilera",
+    models: [m("Ac4 250", 2016), m("Sahel 150", 2013), m("Smash 110", 2007), m("VC 150", 2009)],
+  },
+  {
+    name: "Harley-Davidson",
+    models: [
+      m("Fat Boy", 1990),
+      m("Iron 883", 2009, 2022),
+      m("Nightster", 2022),
+      m("Pan America", 2021),
+      m("Road Glide", 1998),
+      m("Road King", 1994),
+      m("Sportster", 1957),
+      m("Street Bob", 2006),
+      m("Street Glide", 2006),
+    ],
+  },
+  {
+    name: "Honda",
+    models: [
+      m("Africa Twin", 1988),
+      m("Biz 125", 2005),
+      m("CB 190R", 2015),
+      m("CB 250 Twister", 2016),
+      m("CB 500F", 2013),
+      m("CB 650R", 2019),
+      m("CB 1000R", 2008),
+      m("CBR 600RR", 2003),
+      m("CBR 1000RR", 2004),
+      m("CG 150 Titan", 2004),
+      m("Gold Wing", 1975),
+      m("NC 750X", 2014),
+      m("PCX 160", 2021),
+      m("Wave 110", 1997),
+      m("XR 150L", 2014),
+      m("XR 190L", 2016),
+      m("XR 250 Tornado", 2001),
+      m("XRE 300", 2009),
+    ],
+  },
+  {
+    name: "Husqvarna",
+    models: [m("701 Enduro", 2016), m("Svartpilen 401", 2018), m("TE 300", 2014), m("Vitpilen 401", 2018)],
+  },
+  {
+    name: "Kawasaki",
+    models: [
+      m("KLR 650", 1987),
+      m("KX 250", 1974),
+      m("Ninja 400", 2018),
+      m("Ninja 650", 2006),
+      m("Ninja ZX-6R", 1995),
+      m("Ninja ZX-10R", 2004),
+      m("Versys 650", 2007),
+      m("Vulcan S", 2015),
+      m("Z400", 2019),
+      m("Z650", 2017),
+      m("Z900", 2017),
+      m("Z900RS", 2018),
+    ],
+  },
+  {
+    name: "Keller",
+    models: [m("Miracle 150", 2014), m("Quasar 250", 2013), m("Stratus 150", 2010)],
+  },
+  {
+    name: "KTM",
+    models: [
+      m("200 Duke", 2012),
+      m("250 Duke", 2015),
+      m("390 Adventure", 2020),
+      m("390 Duke", 2013),
+      m("690 Enduro", 2008),
+      m("790 Duke", 2018),
+      m("890 Adventure", 2021),
+      m("1290 Super Adventure", 2015),
+      m("EXC 300", 2004),
+      m("RC 390", 2014),
+    ],
+  },
+  {
+    name: "Kymco",
+    models: [m("Agility 125", 2006), m("AK 550", 2017), m("Like 150", 2009), m("Xciting 400", 2013)],
+  },
+  {
+    name: "Motomel",
+    models: [m("Blitz 110", 2009), m("Dakar 200", 2016), m("Sirius 250", 2018), m("Skua 150", 2011), m("Skua 250", 2014)],
+  },
+  {
+    name: "MV Agusta",
+    models: [m("Brutale", 2001), m("Dragster", 2014), m("F3", 2012), m("F4", 1999, 2019)],
+  },
+  {
+    name: "Royal Enfield",
+    models: [
+      m("Bullet 350", 1932),
+      m("Classic 350", 2008),
+      m("Continental GT 650", 2018),
+      m("Himalayan", 2016),
+      m("Hunter 350", 2022),
+      m("Interceptor 650", 2018),
+      m("Meteor 350", 2020),
+    ],
+  },
+  {
+    name: "Suzuki",
+    models: [
+      m("AX 100", 1997, 2020),
+      m("DR 650", 1990),
+      m("Gixxer 150", 2014),
+      m("GN 125", 1982),
+      m("GSX-R 600", 1992),
+      m("GSX-R 750", 1985),
+      m("GSX-R 1000", 2001),
+      m("GSX-S 750", 2015),
+      m("Hayabusa", 1999),
+      m("SV 650", 1999),
+      m("V-Strom 650", 2004),
+    ],
+  },
+  {
+    name: "Triumph",
+    models: [
+      m("Bonneville", 1959),
+      m("Scrambler 400 X", 2023),
+      m("Speed 400", 2023),
+      m("Speed Triple", 1994),
+      m("Street Triple", 2007),
+      m("Tiger 900", 2020),
+      m("Trident 660", 2021),
+    ],
+  },
+  {
+    name: "TVS",
+    models: [m("Apache RTR 160", 2007), m("Apache RTR 200", 2016), m("NTorq 125", 2018), m("Raider 125", 2021)],
+  },
+  {
+    name: "Vespa",
+    models: [m("GTS 300", 2008), m("Primavera", 1968), m("PX", 1977, 2017), m("Sprint", 2014)],
+  },
+  {
+    name: "Voge",
+    models: [m("300 Rally", 2021), m("500 DS", 2020), m("525 DSX", 2023)],
+  },
+  {
+    name: "Yamaha",
+    models: [
+      m("Crypton 110", 1993),
+      m("FZ 25", 2017),
+      m("FZ-S", 2008),
+      m("MT-03", 2006),
+      m("MT-07", 2014),
+      m("MT-09", 2013),
+      m("R1", 1998),
+      m("R3", 2015),
+      m("R6", 1999, 2020),
+      m("Ténéré 700", 2019),
+      m("XT 660", 2004, 2016),
+      m("XTZ 125", 2003),
+      m("XTZ 250", 2007),
+      m("YBR 125", 2005),
+    ],
+  },
+  {
+    name: "Zanella",
+    models: [m("Due 110", 2008), m("Patagonian Eagle 250", 2010), m("RX 150", 2011), m("Styler 150", 2011), m("ZR 150", 2015)],
+  },
+];
+
+export function catalogFor(type: VehicleType): VehicleMake[] {
+  return type === "motorcycle" ? MOTORCYCLE_CATALOG : VEHICLE_CATALOG;
+}
+
+export function findModel(make: string, model: string, type: VehicleType = "car"): VehicleModel | undefined {
+  return catalogFor(type)
+    .find((x) => x.name === make)
+    ?.models.find((x) => x.name === model);
 }
 
 /** Años que se pueden elegir para un modelo, del más nuevo al más viejo. */
@@ -511,12 +761,59 @@ export function modelYears(model: VehicleModel, currentYear: number): number[] {
   return years;
 }
 
-/** `true` si la marca, el modelo y el año existen en el catálogo. */
+/** Recorta y colapsa espacios: "  Gol   Trend " → "Gol Trend". */
+export function cleanName(name: string): string {
+  return name.trim().replace(/\s+/g, " ");
+}
+
+/** Clave para comparar nombres sin importar mayúsculas, tildes ni guiones: "HARLEY DAVIDSON" = "Harley-Davidson". */
+export function nameKey(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+/**
+ * NHTSA devuelve todo en mayúsculas ("ALFA ROMEO", "KOMBI"). Las palabras sólo de letras con más de
+ * 3 caracteres pasan a "Title Case"; las siglas y las que tienen números quedan como vienen (BMW, GTI, CBR954RR).
+ */
+export function prettifyApiName(name: string): string {
+  return cleanName(name)
+    .split(" ")
+    .map((word) =>
+      word.length > 3 && /^[A-Z]+(-[A-Z]+)*$/.test(word)
+        ? word.toLowerCase().replace(/(^|-)([a-z])/g, (_, sep: string, ch: string) => sep + ch.toUpperCase())
+        : word,
+    )
+    .join(" ");
+}
+
+/** Suma a `base` los nombres de `extra` que no estén ya (comparando con `nameKey`), en orden alfabético. */
+export function mergeNames(base: string[], extra: string[]): string[] {
+  const seen = new Set(base.map(nameKey));
+  const out = [...base];
+  for (const name of extra) {
+    const key = nameKey(name);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(name);
+  }
+  return out.sort((a, b) => a.localeCompare(b, "es", { numeric: true, sensitivity: "base" }));
+}
+
+/**
+ * Validación básica: la marca y el modelo pueden venir del catálogo local, de NHTSA o escritos a mano,
+ * así que sólo se controla que sean texto razonable y que el año esté entre `MIN_YEAR` y el año que viene.
+ */
 export function isValidVehicle(
   { make, model, year }: { make: string; model: string; year: number },
   currentYear: number,
 ): boolean {
-  const found = findModel(make, model);
-  if (!found || !Number.isInteger(year)) return false;
-  return year >= found.from && year <= Math.min(found.to ?? currentYear, currentYear);
+  const cleanMake = cleanName(make);
+  const cleanModel = cleanName(model);
+  if (!cleanMake || cleanMake.length > MAX_MAKE_LENGTH) return false;
+  if (!cleanModel || cleanModel.length > MAX_MODEL_LENGTH) return false;
+  return Number.isInteger(year) && year >= MIN_YEAR && year <= currentYear + 1;
 }

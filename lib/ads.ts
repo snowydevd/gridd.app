@@ -1,5 +1,5 @@
 // Anuncios de la web (AdSense), en los mismos lugares que la app (AdMob): el banner arriba de Inicio,
-// Mapa, Próximos encuentros y Guardados, y tarjetas in-feed en "Para vos" y en las listas.
+// Mapa, Próximos encuentros y Guardados, y tarjetas in-feed en las grillas de flyers y en las listas.
 // Reglas de ubicación copiadas de mobile/src/lib/ads/placement.ts.
 
 /** ID de editor de AdSense; el mismo de AdMob (`app-ads.txt` y `ads.txt`). */
@@ -61,13 +61,4 @@ export function withAdSlots<T>(sections: T[][]): Slotted<T>[][] {
     }
     return items
   })
-}
-
-/**
- * Dónde va la tarjeta en la grilla de "Para vos": debajo del evento grande, que sólo existe con
- * cantidad impar; si no hay, debajo del primer par. Con 0 o 1 evento, ninguna.
- */
-export function gridSlot(count: number): "afterWide" | "afterFirstPair" | null {
-  if (count < 2) return null
-  return count % 2 === 1 ? "afterWide" : "afterFirstPair"
 }

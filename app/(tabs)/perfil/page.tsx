@@ -16,6 +16,7 @@ import { ProfileIdentity } from "@/components/profile/profile-identity"
 import { carTitle, getViewer, isPublisher, query, type Car, type GriddEvent, type PublisherRequest } from "@/lib/convex"
 import { requestTime } from "@/lib/event-time"
 import { pageToken } from "@/lib/session"
+import { VEHICLE_ICON, vehicleType } from "@/lib/vehicle-icons"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = { title: "Mi perfil", robots: { index: false } }
@@ -80,12 +81,12 @@ export default async function PerfilPage() {
       <Link href="/perfil/garage" className="rounded-[16px] outline-none active:opacity-75 focus-visible:ring-[3px] focus-visible:ring-ring/60">
         <Card className="flex items-center gap-3 p-4">
           <span className="flex size-10 items-center justify-center rounded-[8px] bg-raised text-brand-text">
-            <Icon icon={Car01Icon} />
+            <Icon icon={cars[0] ? VEHICLE_ICON[vehicleType(cars[0])] : Car01Icon} />
           </span>
           <span className="flex min-w-0 flex-1 flex-col">
-            <span className={cn(text.heading, "truncate")}>{cars[0] ? carTitle(cars[0]) : "Agregá tu auto"}</span>
+            <span className={cn(text.heading, "truncate")}>{cars[0] ? carTitle(cars[0]) : "Agregá tu auto o moto"}</span>
             <span className={cn(text.caption, "text-muted-foreground")}>
-              {cars.length > 1 ? `Mi garage · ${cars.length} autos` : "Mi garage"}
+              {cars.length > 1 ? `Mi garage · ${cars.length} vehículos` : "Mi garage"}
             </span>
           </span>
           <Icon icon={ArrowRight01Icon} className="size-[18px] text-muted-foreground" />

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ArrowRight01Icon, Cancel01Icon, Search01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
+import { Add01Icon, ArrowRight01Icon, Cancel01Icon, Search01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 
 import { Icon, iconButtonClass, text } from "@/components/app/ui"
 import { cn } from "@/lib/utils"
@@ -21,6 +21,8 @@ export function OptionPicker<T extends string | number>({
   placeholder = "Elegir",
   disabled,
   searchable,
+  allowCustom,
+  loading,
 }: {
   label: string
   value: T | null
@@ -29,6 +31,10 @@ export function OptionPicker<T extends string | number>({
   placeholder?: string
   disabled?: boolean
   searchable?: boolean
+  /** Con `searchable`: si lo buscado no está en la lista, ofrece usarlo tal cual (sólo opciones de texto). */
+  allowCustom?: boolean
+  /** Muestra que todavía se están cargando más opciones. */
+  loading?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
@@ -46,6 +52,13 @@ export function OptionPicker<T extends string | number>({
   }, [open])
 
   const visible = query ? options.filter((o) => normalize(String(o)).includes(normalize(query))) : options
+  const custom = query.trim().replace(/\s+/g, " ")
+  const showCustom =
+    !!allowCustom && !!searchable && custom.length > 0 && !options.some((o) => normalize(String(o)) === normalize(custom))
+  const pick = (option: T) => {
+    onChange(option)
+    setOpen(false)
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -90,17 +103,30 @@ export function OptionPicker<T extends string | number>({
             </div>
           )}
           <ul className="mx-auto w-full max-w-xl flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
-            {visible.length === 0 && <li className={cn(text.body, "py-6 text-center text-muted-foreground")}>No hay resultados.</li>}
+            {showCustom && (
+              <li>
+                <button
+                  type="button"
+                  onClick={() => pick(custom as T)}
+                  className="flex min-h-13 w-full items-center gap-2 border-b border-border text-left text-brand-text outline-none active:opacity-70"
+                >
+                  <Icon icon={Add01Icon} className="size-[18px]" strokeWidth={2} />
+                  <span className={cn(text.body, "flex-1 truncate font-semibold")}>Usar “{custom}”</span>
+                </button>
+              </li>
+            )}
+            {visible.length === 0 && !showCustom && !loading && (
+              <li className={cn(text.body, "py-6 text-center text-muted-foreground")}>
+                {allowCustom && searchable ? "Escribí para agregar uno que no esté en la lista." : "No hay resultados."}
+              </li>
+            )}
             {visible.map((option) => {
               const selected = option === value
               return (
                 <li key={String(option)}>
                   <button
                     type="button"
-                    onClick={() => {
-                      onChange(option)
-                      setOpen(false)
-                    }}
+                    onClick={() => pick(option)}
                     className="flex min-h-13 w-full items-center gap-2 border-b border-border text-left outline-none active:opacity-70"
                   >
                     <span className={cn(text.body, "flex-1", selected && "font-semibold text-brand-text")}>{option}</span>
@@ -109,6 +135,12 @@ export function OptionPicker<T extends string | number>({
                 </li>
               )
             })}
+            {loading && (
+              <li className="flex items-center justify-center gap-2 py-6" aria-live="polite">
+                <span className="size-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" aria-hidden />
+                <span className={cn(text.caption, "text-muted-foreground")}>Buscando más opciones…</span>
+              </li>
+            )}
           </ul>
         </div>
       )}

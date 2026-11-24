@@ -46,7 +46,7 @@ export function ProfileIdentity({ name, email, image, hasAvatar, verified }: Pro
       if (!handle(url) || !url.ok) return
       let storageId: string
       try {
-        storageId = await uploadImage(url.value, file, { width: AVATAR_SIZE, aspect: 1 })
+        ;({ storageId } = await uploadImage(url.value, file, { width: AVATAR_SIZE, aspect: 1 }))
       } catch (e) {
         console.error("[perfil] subir foto falló:", e)
         setError("No pudimos subir la foto. Probá con otra imagen.")

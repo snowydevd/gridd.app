@@ -117,10 +117,10 @@ export function TopBanner() {
 }
 
 /**
- * La tarjeta de anuncio entre eventos (NativeAdCard de la app): `row` en las listas, `wide` en la
- * grilla de "Para vos". Es la unidad in-feed de AdSense, que se adapta al ancho.
+ * La tarjeta de anuncio entre eventos (NativeAdCard de la app): `row` en las listas, `wide` a todo el
+ * ancho de una grilla y `tile` en una columna de la grilla de flyers. Es la unidad in-feed de AdSense, que se adapta al ancho.
  */
-export function FeedAd({ variant }: { variant: "row" | "wide" }) {
+export function FeedAd({ variant }: { variant: "row" | "wide" | "tile" }) {
   const config = useAdsConfig()
   const [empty, setEmpty] = useState(false)
   // Estable: si cambiara en cada render, el efecto de AdUnit volvería a correr.
@@ -131,7 +131,11 @@ export function FeedAd({ variant }: { variant: "row" | "wide" }) {
       aria-label="Publicidad"
       className={cn(
         "group overflow-hidden",
-        variant === "wide" ? "col-span-2 rounded-[16px] border border-border p-3" : "rounded-[12px] py-2",
+        variant === "wide"
+          ? "col-span-2 rounded-[16px] border border-border p-3"
+          : variant === "tile"
+            ? "rounded-[16px] border border-border p-2"
+            : "rounded-[12px] py-2",
         unfilledHidden
       )}
     >
