@@ -69,6 +69,9 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
   )
   const [cover, setCover] = useState<Cover>(initial?.imageUrl ? { kind: "existing", url: initial.imageUrl } : null)
   const [description, setDescription] = useState(initial?.description ?? "")
+  const [paidEvent, setPaidEvent] = useState(initial?.paidEvent ?? false)
+  const [entryCost, setEntryCost] = useState(initial?.entryCost ?? 0)
+  const [isSolidary, setIsSolidary] = useState(initial?.isSolidary ?? false)
   const [error, setError] = useState<string | null>(null)
   const [placeError, setPlaceError] = useState<string | null>(null)
   const [mapsFailed, setMapsFailed] = useState(false)
@@ -97,7 +100,7 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
   const outsideUruguay = coords !== null && !inUruguay(coords.lat, coords.lon)
 
   const canContinue = [
-    title.trim().length >= 3 && !!kind,
+    title.trim().length >= 3 && !!kind && (!paidEvent || entryCost > 0),
     startsAt !== null && (noEndTime || endsAt !== null) && !whenError,
     placeName.trim().length >= 2 && coords !== null && !outsideUruguay,
     true,
@@ -166,6 +169,9 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
         placeName,
         lat: coords.lat,
         lon: coords.lon,
+        paidEvent,
+        entryCost: paidEvent ? entryCost : undefined,
+        isSolidary,
       }
 
       if (initial) {
@@ -255,6 +261,47 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
                   </button>
                 ))}
               </div>
+            </div>
+            {/* Como en la app (publish.tsx): entrada paga con su precio y evento solidario. */}
+            <div className="flex flex-col gap-3">
+              <span className={ui.label}>Entrada</span>
+              <label className="flex items-center gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={paidEvent}
+                  onChange={(e) => setPaidEvent(e.target.checked)}
+                  className="size-4 accent-[var(--brand)]"
+                />
+                Hay que pagar entrada
+              </label>
+              {paidEvent && (
+                <div className="relative">
+                  <span aria-hidden className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted-foreground">
+                    $
+                  </span>
+                  <input
+                    aria-label="Precio de entrada"
+                    inputMode="numeric"
+                    maxLength={7}
+                    value={entryCost === 0 ? "" : String(entryCost)}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, "")
+                      setEntryCost(digits === "" ? 0 : parseInt(digits, 10))
+                    }}
+                    placeholder="Precio de entrada"
+                    className={cn(ui.input, "pl-8")}
+                  />
+                </div>
+              )}
+              <label className="flex items-center gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={isSolidary}
+                  onChange={(e) => setIsSolidary(e.target.checked)}
+                  className="size-4 accent-[var(--brand)]"
+                />
+                Evento solidario
+              </label>
             </div>
           </>
         )}
@@ -560,11 +607,23 @@ export function EventForm({ initial, now, mapsKey }: { initial?: GriddEvent; now
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
               <div className="relative flex flex-col gap-1 p-5 text-white">
-                {kind && (
-                  <span className="self-start rounded-full bg-white/15 px-3 py-1 text-[0.68rem] font-semibold tracking-[0.12em] uppercase backdrop-blur">
-                    {KIND_LABELS[kind]}
-                  </span>
-                )}
+                <div className="flex flex-wrap gap-1.5">
+                  {kind && (
+                    <span className="rounded-full bg-white/15 px-3 py-1 text-[0.68rem] font-semibold tracking-[0.12em] uppercase backdrop-blur">
+                      {KIND_LABELS[kind]}
+                    </span>
+                  )}
+                  {paidEvent && entryCost > 0 && (
+                    <span className="rounded-full bg-white/15 px-3 py-1 text-[0.68rem] font-semibold tracking-[0.12em] uppercase backdrop-blur">
+                      ${entryCost.toLocaleString("es-UY")}
+                    </span>
+                  )}
+                  {isSolidary && (
+                    <span className="rounded-full bg-[var(--brand)] px-3 py-1 text-[0.68rem] font-semibold tracking-[0.12em] text-[var(--brand-foreground)] uppercase">
+                      Solidario
+                    </span>
+                  )}
+                </div>
                 <span className="font-heading text-2xl leading-tight">{title}</span>
                 <span className="text-sm text-white/70">
                   {startsAt !== null && (

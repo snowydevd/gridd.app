@@ -22,7 +22,14 @@ export type EventFormInput = {
   placeName: string
   lat: number
   lon: number
+  /** Hay que pagar entrada; el precio (pesos, entero) va en `entryCost`. */
+  paidEvent: boolean
+  entryCost?: number
+  isSolidary: boolean
 }
+
+/** Tope del precio de la entrada (`MAX_ENTRY_COST` en mobile/convex/lib/validation.ts). */
+const MAX_ENTRY_COST = 1_000_000
 
 type ConvexEventFields = {
   title: string
@@ -34,6 +41,9 @@ type ConvexEventFields = {
   placeName: string
   lat: number
   lon: number
+  paidEvent: boolean
+  entryCost?: number
+  isSolidary: boolean
 }
 
 /** Pasa el formulario a los campos de `events.create` / `events.update`. Lo demás lo valida Convex. */
@@ -56,6 +66,12 @@ function toFields(input: EventFormInput): ConvexEventFields | string {
     endsAt = toTimestamp(input.day, input.end ?? "") ?? undefined
     if (endsAt === undefined) return 'Elegí la hora de fin o marcá "Sin hora de fin".'
   }
+  const paidEvent = input.paidEvent === true
+  // Con entrada libre no se manda precio: Convex borra uno que haya quedado de antes.
+  const entryCost = paidEvent ? input.entryCost : undefined
+  if (paidEvent && (!Number.isInteger(entryCost) || entryCost! < 1 || entryCost! > MAX_ENTRY_COST)) {
+    return "El precio de la entrada tiene que ser un número entero entre 1 y 1.000.000."
+  }
   return {
     title: input.title,
     description: input.description,
@@ -66,6 +82,9 @@ function toFields(input: EventFormInput): ConvexEventFields | string {
     placeName: input.placeName,
     lat: input.lat,
     lon: input.lon,
+    paidEvent,
+    entryCost,
+    isSolidary: input.isSolidary === true,
   }
 }
 
