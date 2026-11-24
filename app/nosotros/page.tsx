@@ -170,8 +170,8 @@ const faqs = [
     a: "Reportala desde la ficha. No hace falta cuenta, el organizador no se entera de quién fue y los reportes por picadas se miran primero.",
   },
   {
-    q: "¿Cuándo sale?",
-    a: "Muy pronto en Google Play. Apenas esté, la vas a poder bajar desde acá. Mientras tanto, desde cualquier teléfono ves los encuentros en gridd.app.",
+    q: "¿Dónde la bajo?",
+    a: "En Google Play, desde los botones de esta página. Si no tenés Android, desde cualquier teléfono ves los encuentros en gridd.app.",
   },
 ] as const
 

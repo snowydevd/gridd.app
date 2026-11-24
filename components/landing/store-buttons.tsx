@@ -1,13 +1,12 @@
-import Link from "next/link"
-import { AndroidIcon, AppleIcon } from "@hugeicons/core-free-icons"
+import { AndroidIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import { cn } from "@/lib/utils"
 
-// TODO: reemplazar por las URLs reales de Play Store y App Store cuando existan.
+// TODO: sumar App Store cuando exista la app de iPhone.
 const stores = [
   {
-    href: "#descargar",
+    href: "https://play.google.com/store/apps/details?id=app.gridd",
     icon: AndroidIcon,
     eyebrow: "Descargala en",
     name: "Google Play",
@@ -25,9 +24,11 @@ function StoreButtons({ className, androidOnly = false }: { className?: string; 
     <div className={cn("flex flex-col gap-3", className)}>
       <div className="flex flex-wrap gap-3">
         {shown.map((store) => (
-          <Link
+          <a
             key={store.name}
             href={store.href}
+            target="_blank"
+            rel="noopener noreferrer"
             className={cn(
               "group inline-flex items-center gap-3 rounded-4xl px-5 py-3 transition-all outline-none",
               "focus-visible:ring-[3px]",
@@ -53,11 +54,11 @@ function StoreButtons({ className, androidOnly = false }: { className?: string; 
               </span>
               <span className="mt-1 text-sm font-medium">{store.name}</span>
             </span>
-          </Link>
+          </a>
         ))}
       </div>
       <p className="text-[0.68rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
-        {androidOnly ? "Muy pronto en Google Play." : "Muy pronto en Google Play y App Store."}
+        {androidOnly ? "Gratis en Google Play." : "Gratis en Google Play. Muy pronto en App Store."}
       </p>
     </div>
   )
